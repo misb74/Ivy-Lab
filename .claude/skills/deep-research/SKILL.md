@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: Structured deep research pipeline — multi-source, parallel threads, SQLite-persistent, with confidence scoring and provenance tracking.
+description: Structured deep research pipeline — multi-source, parallel threads, SQLite-persistent, with confidence scoring and provenance tracking. Use for thorough/comprehensive analysis, federated or cross-source search, academic research, curated institutional findings, "search all sources", or resuming/continuing an in-progress research thread.
 ---
 
 # Deep Research Pipeline

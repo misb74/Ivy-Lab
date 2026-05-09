@@ -1,6 +1,6 @@
 ---
 name: agent-builder
-description: Build real, working AI agents from WorkVine simulations or from scratch. Guided wizard → Claude Code builds the actual agent with real code, tests, and guardrails.
+description: Build real, working AI agents from WorkVine simulations or from scratch. Use when the user wants to create/scaffold/compose/deploy an agent, write an agent spec, configure agent tools or SDK, turn a process into an agent, generate an agent from a simulation, or automate a workflow with an agent.
 ---
 
 # Agent Builder — Guided Design → Build

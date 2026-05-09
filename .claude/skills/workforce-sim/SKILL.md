@@ -1,3 +1,8 @@
+---
+name: workforce-sim
+description: WorkVine Simulate — Workforce Redesign Skill. Use when the user wants to simulate, model, or redesign a workforce with AI agents — including "what happens when I introduce agents", maturation curves, cultural resistance, transition plans, Build/Buy/Borrow/Bot (BBBOB), scenario comparison, AI impact on a team, "where to start with AI", roles/tasks most affected, agent adoption timelines, finance team transformation, or any 18-month workforce redesign.
+---
+
 # WorkVine Simulate — Workforce Redesign Skill
 
 ## When to Activate
