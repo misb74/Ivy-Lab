@@ -1,0 +1,38 @@
+{
+  "id": "bamboohr",
+  "name": "BambooHR",
+  "category": "hris",
+  "version": "1.0.0",
+  "base_url_template": "https://api.bamboohr.com/api/gateway.php/{{subdomain}}/v1",
+  "auth_type": "api_key",
+  "auth_config_template": {
+    "api_key": "{{api_key}}",
+    "api_key_header": "Authorization"
+  },
+  "auth_config_fields": ["subdomain", "api_key"],
+  "health_endpoint": "/employees/directory",
+  "default_endpoints": [
+    { "entity_type": "employees", "path": "/employees/directory", "data_path": "employees" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "page",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "displayName": "full_name",
+    "firstName": "first_name",
+    "lastName": "last_name",
+    "workEmail": "email",
+    "workPhone": "phone",
+    "jobTitle": "title",
+    "department": "department",
+    "location": "location.city",
+    "country": "location.country",
+    "hireDate": "employment.start_date",
+    "status": "employment.status"
+  },
+  "notes": "BambooHR REST API v1. Requires company subdomain. API key sent as basic auth username."
+}

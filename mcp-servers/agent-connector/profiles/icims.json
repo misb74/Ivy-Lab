@@ -1,0 +1,36 @@
+{
+  "id": "icims",
+  "name": "iCIMS",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "https://{{customer_id}}.icims.com/applicanttracking/v3",
+  "auth_type": "oauth2_bearer",
+  "auth_config_template": {
+    "token": "{{access_token}}"
+  },
+  "auth_config_fields": ["customer_id", "access_token"],
+  "health_endpoint": "/people?count=1",
+  "default_endpoints": [
+    { "entity_type": "candidates", "path": "/people", "data_path": "searchResults" },
+    { "entity_type": "jobs", "path": "/jobs", "data_path": "searchResults" },
+    { "entity_type": "applications", "path": "/applicantworkflows", "data_path": "searchResults" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "startIndex",
+    "per_page_param": "count",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "firstname": "first_name",
+    "lastname": "last_name",
+    "email": "email",
+    "phone": "phone",
+    "title": "title",
+    "source": "source",
+    "createdate": "created_at",
+    "updateddate": "updated_at"
+  },
+  "notes": "iCIMS Platform API v3. Requires customer-specific subdomain. OAuth2 bearer token auth."
+}

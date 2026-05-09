@@ -1,0 +1,38 @@
+{
+  "id": "ashby",
+  "name": "Ashby",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "https://api.ashbyhq.com",
+  "auth_type": "api_key",
+  "auth_config_template": {
+    "api_key": "{{api_key}}",
+    "api_key_header": "Authorization"
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/candidate.list",
+  "default_endpoints": [
+    { "entity_type": "candidates", "path": "/candidate.list", "data_path": "results" },
+    { "entity_type": "jobs", "path": "/job.list", "data_path": "results" },
+    { "entity_type": "applications", "path": "/application.list", "data_path": "results" }
+  ],
+  "pagination": {
+    "type": "cursor",
+    "cursor_field": "nextCursor",
+    "cursor_param": "cursor",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "name": "full_name",
+    "primaryEmailAddress.value": "email",
+    "primaryPhoneNumber.value": "phone",
+    "position": "title",
+    "department.name": "department",
+    "location": "location.city",
+    "createdAt": "created_at",
+    "updatedAt": "updated_at"
+  },
+  "notes": "Ashby REST API. Uses API key in Authorization header (Basic base64-encoded)."
+}

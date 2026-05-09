@@ -1,0 +1,22 @@
+import Database from 'better-sqlite3';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { mkdirSync } from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const DB_DIR = join(__dirname, '..', '..', 'data', 'monitors');
+const DB_PATH = join(DB_DIR, 'monitors.db');
+
+let db: Database.Database | null = null;
+
+export function getDatabase(): Database.Database {
+  if (!db) {
+    mkdirSync(DB_DIR, { recursive: true });
+    db = new Database(DB_PATH);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+  }
+  return db;
+}

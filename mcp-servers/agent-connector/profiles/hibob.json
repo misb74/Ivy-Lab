@@ -1,0 +1,38 @@
+{
+  "id": "hibob",
+  "name": "HiBob",
+  "category": "hris",
+  "version": "1.0.0",
+  "base_url_template": "https://api.hibob.com/v1",
+  "auth_type": "api_key",
+  "auth_config_template": {
+    "api_key": "{{api_key}}",
+    "api_key_header": "Authorization"
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/people?showInactive=false",
+  "default_endpoints": [
+    { "entity_type": "employees", "path": "/people", "data_path": "employees" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "page",
+    "per_page_param": "pageSize",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "displayName": "full_name",
+    "firstName": "first_name",
+    "surname": "last_name",
+    "email": "email",
+    "work.title": "title",
+    "work.department": "department",
+    "work.site": "location.city",
+    "work.startDate": "employment.start_date",
+    "work.employeeStatus": "employment.status",
+    "payroll.employment.type": "employment.type",
+    "creationDateTime": "created_at"
+  },
+  "notes": "HiBob REST API v1. Uses API key in Authorization header."
+}

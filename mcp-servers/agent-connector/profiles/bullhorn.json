@@ -1,0 +1,39 @@
+{
+  "id": "bullhorn",
+  "name": "Bullhorn",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "{{rest_url}}",
+  "auth_type": "oauth2_bearer",
+  "auth_config_template": {
+    "token": "{{bh_rest_token}}"
+  },
+  "auth_config_fields": ["rest_url", "bh_rest_token"],
+  "health_endpoint": "/entity/Candidate?count=1&fields=id",
+  "default_endpoints": [
+    { "entity_type": "candidates", "path": "/entity/Candidate", "data_path": "data" },
+    { "entity_type": "jobs", "path": "/entity/JobOrder", "data_path": "data" },
+    { "entity_type": "placements", "path": "/entity/Placement", "data_path": "data" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "start",
+    "per_page_param": "count",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "firstName": "first_name",
+    "lastName": "last_name",
+    "email": "email",
+    "phone": "phone",
+    "occupation": "title",
+    "category.name": "department",
+    "address.city": "location.city",
+    "address.countryName": "location.country",
+    "source": "source",
+    "dateAdded": "created_at",
+    "dateLastModified": "updated_at"
+  },
+  "notes": "Bullhorn REST API v2. Requires Bullhorn REST URL (per-tenant) and BhRestToken from OAuth flow."
+}
