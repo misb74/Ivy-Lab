@@ -1,0 +1,49 @@
+{
+  "printing-press": {
+    "binary": "printing-press",
+    "binary_absolute": "/Users/moraybrown/go/bin/printing-press",
+    "version": "4.2.1",
+    "kind": "meta-tool",
+    "legal_class": "meta",
+    "domain": "cli-generation",
+    "lab_only": false,
+    "auth_optional": ["GITHUB_TOKEN", "GH_TOKEN"],
+    "purpose": "Generates new CLIs for any API on demand. Slash command: /printing-press <api>."
+  },
+  "company-goat": {
+    "binary": "company-goat-pp-cli",
+    "binary_absolute": "/Users/moraybrown/go/bin/company-goat-pp-cli",
+    "version": "1.0.0",
+    "kind": "library-cli",
+    "legal_class": "public_api",
+    "domain": "company-research",
+    "lab_only": false,
+    "sources": [
+      "SEC EDGAR Form D",
+      "GitHub",
+      "Hacker News (Algolia)",
+      "Companies House (UK)",
+      "Y Combinator directory",
+      "Wikidata SPARQL",
+      "RDAP / DNS"
+    ],
+    "auth_optional": ["GITHUB_TOKEN", "COMPANIES_HOUSE_API_KEY"],
+    "built_in_sync": true,
+    "mirror_table_generic": "pp-mirrors/company-goat.db",
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "snapshot",
+      "funding",
+      "funding-trend",
+      "engineering",
+      "mentions",
+      "launches",
+      "legal",
+      "wiki",
+      "yc",
+      "domain",
+      "signal",
+      "sync"
+    ]
+  }
+}
