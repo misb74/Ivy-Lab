@@ -39,5 +39,23 @@
       "Bash(curl:*)",
       "Bash(wget:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          { "type": "command", "command": "node /Users/moraybrown/Desktop/Ivy-Lab/scripts/preflight.js" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          { "type": "command", "command": "node /Users/moraybrown/Desktop/Ivy-Lab/scripts/audit-and-mirror.js" }
+        ]
+      }
+    ]
   }
 }
