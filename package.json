@@ -1,0 +1,21 @@
+{
+  "name": "ivy-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI-first Lab companion to Ivy. Claude Code is the agent; Telegram bot is a thin transport over the Claude Agent SDK.",
+  "workspaces": [
+    "mcp-servers/*",
+    "packages/*",
+    "bot"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "start:bot": "npm --workspace bot start"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}

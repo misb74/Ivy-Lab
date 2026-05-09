@@ -1,0 +1,35 @@
+{
+  "id": "workday",
+  "name": "Workday",
+  "category": "hris",
+  "version": "1.0.0",
+  "base_url_template": "https://{{tenant}}.workday.com/api/v1/{{tenant}}",
+  "auth_type": "basic",
+  "auth_config_template": {
+    "username": "{{username}}",
+    "password": "{{password}}"
+  },
+  "auth_config_fields": ["tenant", "username", "password"],
+  "health_endpoint": "/workers?limit=1",
+  "default_endpoints": [
+    { "entity_type": "employees", "path": "/workers", "data_path": "data" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "offset",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "descriptor": "full_name",
+    "primaryWorkEmail": "email",
+    "primaryWorkPhone": "phone",
+    "businessTitle": "title",
+    "supervisoryOrganization.descriptor": "department",
+    "primaryWorkAddressText": "location.city",
+    "hireDate": "employment.start_date",
+    "workerStatus.descriptor": "employment.status"
+  },
+  "notes": "Workday REST API (People/RAAS endpoints only — no SOAP). Requires tenant name and basic auth credentials."
+}

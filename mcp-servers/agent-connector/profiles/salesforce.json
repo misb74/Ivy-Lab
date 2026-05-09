@@ -1,0 +1,38 @@
+{
+  "id": "salesforce",
+  "name": "Salesforce",
+  "category": "crm",
+  "version": "1.0.0",
+  "base_url_template": "https://{{instance}}.salesforce.com/services/data/v58.0",
+  "auth_type": "oauth2_bearer",
+  "auth_config_template": {
+    "token": "{{access_token}}"
+  },
+  "auth_config_fields": ["instance", "access_token"],
+  "health_endpoint": "/query?q=SELECT+Id+FROM+Contact+LIMIT+1",
+  "default_endpoints": [
+    { "entity_type": "contacts", "path": "/query?q=SELECT+Id,FirstName,LastName,Email,Phone,Title,Department+FROM+Contact", "data_path": "records" },
+    { "entity_type": "accounts", "path": "/query?q=SELECT+Id,Name,Industry,Type+FROM+Account", "data_path": "records" },
+    { "entity_type": "leads", "path": "/query?q=SELECT+Id,FirstName,LastName,Email,Company,Status+FROM+Lead", "data_path": "records" }
+  ],
+  "pagination": {
+    "type": "cursor",
+    "cursor_field": "nextRecordsUrl",
+    "cursor_param": null,
+    "per_page_default": 2000
+  },
+  "field_mapping": {
+    "Id": "external_id",
+    "FirstName": "first_name",
+    "LastName": "last_name",
+    "Email": "email",
+    "Phone": "phone",
+    "Title": "title",
+    "Department": "department",
+    "MailingCity": "location.city",
+    "MailingCountry": "location.country",
+    "CreatedDate": "created_at",
+    "LastModifiedDate": "updated_at"
+  },
+  "notes": "Salesforce REST API v58.0. Uses SOQL queries. Cursor pagination via nextRecordsUrl (absolute path). Requires instance name and OAuth2 access token."
+}

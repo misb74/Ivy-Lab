@@ -1,0 +1,40 @@
+{
+  "id": "zoho",
+  "name": "Zoho CRM",
+  "category": "crm",
+  "version": "1.0.0",
+  "base_url_template": "https://www.zohoapis.com/crm/v7",
+  "auth_type": "oauth2_bearer",
+  "auth_config_template": {
+    "token": "{{access_token}}"
+  },
+  "auth_config_fields": ["access_token"],
+  "health_endpoint": "/Contacts?per_page=1",
+  "default_endpoints": [
+    { "entity_type": "contacts", "path": "/Contacts", "data_path": "data" },
+    { "entity_type": "leads", "path": "/Leads", "data_path": "data" },
+    { "entity_type": "accounts", "path": "/Accounts", "data_path": "data" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "page",
+    "per_page_param": "per_page",
+    "per_page_default": 200
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "Full_Name": "full_name",
+    "First_Name": "first_name",
+    "Last_Name": "last_name",
+    "Email": "email",
+    "Phone": "phone",
+    "Title": "title",
+    "Department": "department",
+    "Mailing_City": "location.city",
+    "Mailing_Country": "location.country",
+    "Lead_Source": "source",
+    "Created_Time": "created_at",
+    "Modified_Time": "updated_at"
+  },
+  "notes": "Zoho CRM REST API v7. Uses OAuth2 bearer token. Offset-based pagination."
+}

@@ -1,0 +1,38 @@
+{
+  "id": "smartrecruiters",
+  "name": "SmartRecruiters",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "https://api.smartrecruiters.com",
+  "auth_type": "api_key",
+  "auth_config_template": {
+    "api_key": "{{api_key}}",
+    "api_key_header": "X-SmartToken"
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/jobs?limit=1",
+  "default_endpoints": [
+    { "entity_type": "candidates", "path": "/candidates", "data_path": "content" },
+    { "entity_type": "jobs", "path": "/jobs", "data_path": "content" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "offset",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "firstName": "first_name",
+    "lastName": "last_name",
+    "email": "email",
+    "phoneNumber": "phone",
+    "currentTitle": "title",
+    "location.city": "location.city",
+    "location.country": "location.country",
+    "source.name": "source",
+    "createdOn": "created_at",
+    "updatedOn": "updated_at"
+  },
+  "notes": "SmartRecruiters REST API v1. Uses X-SmartToken header for auth."
+}

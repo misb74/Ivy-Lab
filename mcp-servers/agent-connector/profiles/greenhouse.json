@@ -1,0 +1,36 @@
+{
+  "id": "greenhouse",
+  "name": "Greenhouse",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "https://harvest.greenhouse.io/v1",
+  "auth_type": "basic",
+  "auth_config_template": {
+    "username": "{{api_key}}",
+    "password": ""
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/candidates?per_page=1",
+  "default_endpoints": [
+    { "entity_type": "candidates", "path": "/candidates", "data_path": null },
+    { "entity_type": "jobs", "path": "/jobs", "data_path": null },
+    { "entity_type": "applications", "path": "/applications", "data_path": null }
+  ],
+  "pagination": {
+    "type": "link_header",
+    "per_page_param": "per_page",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "emails[0].value": "email",
+    "phone_numbers[0].value": "phone",
+    "title": "title",
+    "company": "department",
+    "created_at": "created_at",
+    "updated_at": "updated_at"
+  },
+  "notes": "Greenhouse Harvest API v1. Uses basic auth with API key as username and empty password."
+}

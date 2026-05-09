@@ -1,0 +1,40 @@
+{
+  "id": "hubspot",
+  "name": "HubSpot",
+  "category": "crm",
+  "version": "1.0.0",
+  "base_url_template": "https://api.hubapi.com",
+  "auth_type": "oauth2_bearer",
+  "auth_config_template": {
+    "token": "{{access_token}}"
+  },
+  "auth_config_fields": ["access_token"],
+  "health_endpoint": "/crm/v3/objects/contacts?limit=1",
+  "default_endpoints": [
+    { "entity_type": "contacts", "path": "/crm/v3/objects/contacts", "data_path": "results" },
+    { "entity_type": "companies", "path": "/crm/v3/objects/companies", "data_path": "results" },
+    { "entity_type": "deals", "path": "/crm/v3/objects/deals", "data_path": "results" }
+  ],
+  "pagination": {
+    "type": "cursor",
+    "cursor_field": "paging.next.after",
+    "cursor_param": "after",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "properties.firstname": "first_name",
+    "properties.lastname": "last_name",
+    "properties.email": "email",
+    "properties.phone": "phone",
+    "properties.jobtitle": "title",
+    "properties.company": "department",
+    "properties.city": "location.city",
+    "properties.country": "location.country",
+    "properties.hs_lead_status": "stage",
+    "createdAt": "created_at",
+    "updatedAt": "updated_at"
+  },
+  "notes": "HubSpot CRM API v3. Uses OAuth2 bearer token. Cursor pagination via paging.next.after."
+}

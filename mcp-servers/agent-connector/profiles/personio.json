@@ -1,0 +1,38 @@
+{
+  "id": "personio",
+  "name": "Personio",
+  "category": "hris",
+  "version": "1.0.0",
+  "base_url_template": "https://api.personio.de/v1",
+  "auth_type": "api_key",
+  "auth_config_template": {
+    "api_key": "{{api_key}}",
+    "api_key_header": "Authorization"
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/company/employees?limit=1",
+  "default_endpoints": [
+    { "entity_type": "employees", "path": "/company/employees", "data_path": "data" },
+    { "entity_type": "absences", "path": "/company/time-offs", "data_path": "data" }
+  ],
+  "pagination": {
+    "type": "offset",
+    "page_param": "offset",
+    "per_page_param": "limit",
+    "per_page_default": 200
+  },
+  "field_mapping": {
+    "attributes.id.value": "external_id",
+    "attributes.first_name.value": "first_name",
+    "attributes.last_name.value": "last_name",
+    "attributes.email.value": "email",
+    "attributes.position.value": "title",
+    "attributes.department.value": "department",
+    "attributes.office.value": "location.city",
+    "attributes.hire_date.value": "employment.start_date",
+    "attributes.status.value": "employment.status",
+    "attributes.employment_type.value": "employment.type",
+    "attributes.created_at.value": "created_at"
+  },
+  "notes": "Personio REST API v1. Uses API token in Authorization header (Bearer format)."
+}

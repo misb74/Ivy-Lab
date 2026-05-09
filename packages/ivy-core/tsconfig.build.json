@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "dist",
+    "test",
+    "**/*section-b*",
+    "**/*session*",
+    "**/*message*",
+    "**/*handoff*",
+    "**/*mutation*",
+    "**/*user-preferences*",
+    "**/*artifact-cell*"
+  ]
+}

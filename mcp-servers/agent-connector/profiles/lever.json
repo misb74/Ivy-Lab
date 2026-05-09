@@ -1,0 +1,37 @@
+{
+  "id": "lever",
+  "name": "Lever",
+  "category": "ats",
+  "version": "1.0.0",
+  "base_url_template": "https://api.lever.co/v1",
+  "auth_type": "basic",
+  "auth_config_template": {
+    "username": "{{api_key}}",
+    "password": ""
+  },
+  "auth_config_fields": ["api_key"],
+  "health_endpoint": "/opportunities?limit=1",
+  "default_endpoints": [
+    { "entity_type": "opportunities", "path": "/opportunities", "data_path": "data" },
+    { "entity_type": "postings", "path": "/postings", "data_path": "data" }
+  ],
+  "pagination": {
+    "type": "cursor",
+    "cursor_field": "next",
+    "cursor_param": "offset",
+    "per_page_param": "limit",
+    "per_page_default": 100
+  },
+  "field_mapping": {
+    "id": "external_id",
+    "name": "full_name",
+    "emails[0]": "email",
+    "phones[0].value": "phone",
+    "headline": "title",
+    "stage.text": "stage",
+    "sources[0]": "source",
+    "createdAt": "created_at",
+    "updatedAt": "updated_at"
+  },
+  "notes": "Lever REST API. Uses basic auth with API key as username."
+}

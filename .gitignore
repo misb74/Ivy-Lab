@@ -14,12 +14,20 @@ npm-debug.log*
 
 # Local data planes (regenerable / per-machine)
 pp-mirrors/
-data/*.db
-data/*.db-shm
-data/*.db-wal
-data/audit.db
+*.db
+*.db-shm
+*.db-wal
 outputs/
 .outputs/
+
+# Generated binary outputs (reports, presentations, exports)
+*.pptx
+*.docx
+*.xlsx
+*.pdf
+*.png
+*.jpg
+*.jpeg
 
 # OS / editor
 .DS_Store

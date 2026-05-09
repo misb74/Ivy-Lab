@@ -1,0 +1,25 @@
+{
+  "name": "@auxia/agent-export",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^11.0.0",
+    "pdfkit": "^0.15.0",
+    "pptxgenjs": "^3.12.0",
+    "exceljs": "^4.4.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/pdfkit": "^0.13.0"
+  }
+}

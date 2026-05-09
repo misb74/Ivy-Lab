@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Ivy launcher with splash screen
+
+set -euo pipefail
+
+# ── colors (rose brand palette — #f43f5e) ───────────────────────────
+RST='\033[0m'
+BOLD='\033[1m'
+DIM='\033[2m'
+# Rose gradient
+R1='\033[38;5;52m'    # darkest
+R2='\033[38;5;124m'   # deep
+R3='\033[38;5;197m'   # primary rose
+R4='\033[38;5;204m'   # light
+R5='\033[38;5;217m'   # palest
+# Slate (Ivy design system)
+S1='\033[38;5;236m'
+S2='\033[38;5;245m'
+S3='\033[38;5;252m'
+BAR='\033[38;5;236m'
+
+# ── resolve symlinks to find real Ivy dir ──────────────────────
+SELF="$0"
+while [ -L "$SELF" ]; do
+  DIR="$(cd "$(dirname "$SELF")" && pwd)"
+  SELF="$(readlink "$SELF")"
+  [[ "$SELF" != /* ]] && SELF="$DIR/$SELF"
+done
+IVY_DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+VERSION=$(grep '"version"' "$IVY_DIR/package.json" | head -1 | sed 's/.*: *"\(.*\)".*/\1/')
+NOW=$(date "+%A, %B %-d %Y  %H:%M")
+
+# ── terminal width ──────────────────────────────────────────────────
+COLS=$(tput cols 2>/dev/null || echo 80)
+
+center() {
+  local text="$1"
+  local stripped
+  stripped=$(echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g')
+  local len=${#stripped}
+  local pad=$(( (COLS - len) / 2 ))
+  (( pad < 0 )) && pad=0
+  printf "%*s" "$pad" ""
+  echo -e "$text"
+}
+
+rule() {
+  local char="${1:─}"
+  local line=""
+  for ((i=0; i<COLS; i++)); do line+="$char"; done
+  echo -e "${BAR}${line}${RST}"
+}
+
+# ── clear & draw ────────────────────────────────────────────────────
+clear
+echo ""
+
+# Vine decorations
+center "${R1}  ·  ${R2}·    ${R1}·        ${R2}·    ${R1}·  ${R2}·  "
+center "${R2}       ·       ${R1}·   ${R2}·        ${R1}·     "
+echo ""
+
+# ── Hand logo (Ivy icon) ───────────────────────────────────────────
+center "${R4}              │   │    │${RST}"
+center "${R4}              │   │    │${RST}"
+center "${R3}              │   │    │${RST}"
+center "${R3}       ╭──╮   │   │    │${RST}"
+center "${R3}       │  │   │   │    │${RST}"
+center "${R3}       ╰──╯  ╱    │    │${RST}"
+center "${R2}             │         │${RST}"
+center "${R2}              ╲       ╱${RST}"
+center "${R1}               ╰─────╯${RST}"
+echo ""
+
+# ── IVY text ────────────────────────────────────────────────────────
+center "${R3}${BOLD}  ██╗${R4}██╗   ██╗${R5}██╗   ██╗${RST}"
+center "${R3}${BOLD}  ██║${R4}██║   ██║${R5}╚██╗ ██╔╝${RST}"
+center "${R3}${BOLD}  ██║${R4}██║   ██║${R5} ╚████╔╝ ${RST}"
+center "${R3}${BOLD}  ██║${R4}╚██╗ ██╔╝${R5}  ╚██╔╝  ${RST}"
+center "${R3}${BOLD}  ██║${R4} ╚████╔╝ ${R5}   ██║   ${RST}"
+center "${R3}${BOLD}  ╚═╝${R4}  ╚═══╝  ${R5}   ╚═╝   ${RST}"
+
+echo ""
+center "${S2}Workforce Intelligence Agent${RST}"
+echo ""
+echo ""
+
+# ── Info block ──────────────────────────────────────────────────────
+center "${S2}version${RST}     ${R4}v${VERSION}${RST}"
+center "${S2}   time${RST}     ${S3}${NOW}${RST}"
+center "${S2}   mode${RST}     ${R3}▸  Claude Code${RST}"
+echo ""
+
+rule "─"
+echo ""
+
+# ── launch claude ───────────────────────────────────────────────────
+cd "$IVY_DIR"
+exec claude "$@"
