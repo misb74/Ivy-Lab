@@ -1,0 +1,32 @@
+# Secrets — NEVER COMMIT
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / TypeScript
+node_modules/
+build/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# Local data planes (regenerable / per-machine)
+pp-mirrors/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/audit.db
+outputs/
+.outputs/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Telegram bot local state
+data/telegram-bot/uploads/
