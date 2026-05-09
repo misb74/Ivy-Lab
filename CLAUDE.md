@@ -21,7 +21,7 @@ The model writes the pipeline; Bash runs it; only the final shape lands in your 
 
 ## Mirror rules
 
-- Every external CLI call writes a row into `pp-mirrors/<source>.db` via the PostToolUse hook (Phase 4).
+- Every external CLI call writes a row into `pp-mirrors/<source>.db` via `scripts/audit-and-mirror.js` (PostToolUse hook).
 - "What changed since last sync" is a single SQL query against the mirror — no per-source code.
 - DBs are gitignored. Treat them as local cache, not source of truth.
 
@@ -34,8 +34,8 @@ The model writes the pipeline; Bash runs it; only the final shape lands in your 
 ## Bash safety
 
 - `.claude/settings.json` deny-lists raw `curl`/`wget` deliberately. Use a PP CLI instead.
-- Kill switch: `IVY_LAB_BASH_DISABLED=1` env var disables Bash for the Claude Code session (PreToolUse hook lands in Phase 4).
-- Audit log lives at `data/audit.db` (Phase 4).
+- Kill switch: `IVY_LAB_BASH_DISABLED=1` env var disables Bash for the Claude Code session (live; PreToolUse hook in `scripts/preflight.js`).
+- Audit log lives at `data/audit.db` — every tool call recorded.
 
 ## Working with the MCP fleet
 
