@@ -1,0 +1,516 @@
+{
+  "mcpServers": {
+    "hr-skills": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-skills/src/index.ts"
+      ]
+    },
+    "hr-workforce": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-workforce/src/index.ts"
+      ]
+    },
+    "hr-roles": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-roles/src/index.ts"
+      ]
+    },
+    "hr-compliance": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-compliance/src/index.ts"
+      ]
+    },
+    "hr-automation": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-automation/src/index.ts"
+      ]
+    },
+    "hr-recruitment": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-recruitment/src/index.ts"
+      ]
+    },
+    "data-lightcast": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-lightcast/src/index.ts"
+      ]
+    },
+    "data-onet": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-onet/src/index.ts"
+      ]
+    },
+    "data-bls": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-bls/src/index.ts"
+      ]
+    },
+    "data-workbank": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-workbank/src/index.ts"
+      ]
+    },
+    "data-adzuna": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-adzuna/src/index.ts"
+      ]
+    },
+    "doc-generator": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/doc-generator/src/index.ts"
+      ]
+    },
+    "google-calendar": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "set -a; source /Users/moraybrown/Desktop/Ivy-Lab/.env 2>/dev/null; set +a; exec npx @cocal/google-calendar-mcp"
+      ]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "set -a; source /Users/moraybrown/Desktop/Ivy-Lab/.env 2>/dev/null; set +a; exec npx @playwright/mcp@latest"
+      ]
+    },
+    "agent-memory": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-memory/src/index.ts"
+      ]
+    },
+    "agent-computer-use": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-computer-use/src/index.ts"
+      ]
+    },
+    "agent-browser": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-browser/src/index.ts"
+      ]
+    },
+    "agent-research": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-research/src/index.ts"
+      ]
+    },
+    "agent-codeops": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-codeops/src/index.ts"
+      ]
+    },
+    "agent-delegator": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-delegator/src/index.ts"
+      ]
+    },
+    "agent-email": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-email/src/index.ts"
+      ]
+    },
+    "agent-http": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-http/src/index.ts"
+      ]
+    },
+    "agent-data-analysis": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-data-analysis/src/index.ts"
+      ]
+    },
+    "agent-knowledge-graph": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-knowledge-graph/src/index.ts"
+      ]
+    },
+    "agent-swarm": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-swarm/src/index.ts"
+      ]
+    },
+    "agent-monitor": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-monitor/src/index.ts"
+      ]
+    },
+    "agent-workforce-sim": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-workforce-sim/src/index.ts"
+      ]
+    },
+    "agent-customer-data": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-customer-data/src/index.ts"
+      ]
+    },
+    "hr-predictive": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-predictive/src/index.ts"
+      ]
+    },
+    "hr-talent-marketplace": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/hr-talent-marketplace/src/index.ts"
+      ]
+    },
+    "agent-connector": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-connector/src/index.ts"
+      ]
+    },
+    "agent-transcription": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-transcription/src/index.ts"
+      ]
+    },
+    "agent-notification": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-notification/src/index.ts"
+      ]
+    },
+    "agent-export": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-export/src/index.ts"
+      ]
+    },
+    "agent-ats-scanner": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-ats-scanner/src/index.ts"
+      ]
+    },
+    "agent-talent-sourcer": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-talent-sourcer/src/index.ts"
+      ]
+    },
+    "agent-talent-researcher": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-talent-researcher/src/index.ts"
+      ]
+    },
+    "agent-tool-forge": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-tool-forge/src/index.ts"
+      ]
+    },
+    "google-drive": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "set -a; source /Users/moraybrown/Desktop/Ivy-Lab/.env 2>/dev/null; set +a; exec npx @piotr-agier/google-drive-mcp"
+      ]
+    },
+    "data-eurostat": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-eurostat/src/index.ts"
+      ]
+    },
+    "data-esco": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-esco/src/index.ts"
+      ]
+    },
+    "data-felten-aioe": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-felten-aioe/src/index.ts"
+      ]
+    },
+    "data-anthropic-econ-index": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-anthropic-econ-index/src/index.ts"
+      ]
+    },
+    "data-fred": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-fred/src/index.ts"
+      ]
+    },
+    "data-ilostat": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-ilostat/src/index.ts"
+      ]
+    },
+    "data-indeed": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-indeed/src/index.ts"
+      ]
+    },
+    "data-labor-market": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-labor-market/src/index.ts"
+      ]
+    },
+    "data-research-index": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-research-index/src/index.ts"
+      ]
+    },
+    "data-jobhop": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-jobhop/src/index.ts"
+      ]
+    },
+    "data-nlrb": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-nlrb/src/index.ts"
+      ]
+    },
+    "data-revelio": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-revelio/src/index.ts"
+      ]
+    },
+    "data-uk-paygap": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-uk-paygap/src/index.ts"
+      ]
+    },
+    "report-cloner": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/report-cloner/src/index.ts"
+      ]
+    },
+    "agent-multi-search": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-multi-search/src/index.ts"
+      ]
+    },
+    "agent-deep-research": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-deep-research/src/index.ts"
+      ]
+    },
+    "data-skills-intelligence": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-skills-intelligence/src/index.ts"
+      ]
+    },
+    "spec-engine": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/spec-engine/src/index.ts"
+      ]
+    },
+    "agent-triangulator": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-triangulator/src/index.ts"
+      ]
+    },
+    "agent-verifier": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-verifier/src/index.ts"
+      ]
+    },
+    "data-atlas": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/data-atlas/src/index.ts"
+      ]
+    },
+    "agent-builder": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-builder/src/index.ts"
+      ]
+    },
+    "agent-interview": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-interview/src/index.ts"
+      ]
+    },
+    "agent-work-graph": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-work-graph/src/index.ts"
+      ]
+    },
+    "agent-activity-analysis": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "/Users/moraybrown/Desktop/Ivy-Lab/scripts/run-mcp.sh",
+        "/Users/moraybrown/Desktop/Ivy-Lab/mcp-servers/agent-activity-analysis/src/index.ts"
+      ]
+    }
+  }
+}

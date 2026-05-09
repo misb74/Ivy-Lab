@@ -1,3 +1,8 @@
+---
+name: lessons
+description: Learned Rules — Session Corrections. Apply when a user corrects a mistake or redirects an approach, to record and recall session-learned rules that prevent repeating the same class of error.
+---
+
 # Learned Rules — Session Corrections
 
 Rules captured from user corrections. Each rule prevents a specific class of mistake from recurring.

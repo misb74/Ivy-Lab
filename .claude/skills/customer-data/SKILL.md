@@ -1,3 +1,8 @@
+---
+name: customer-data
+description: Customer Data — Upload, Map & Query Skill. Use when the user wants to upload or import their own data (employee roster, org hierarchy, headcount, comp/compensation/salary data, department data), import CSV/Excel/spreadsheet files, query previously uploaded workforce data, or reference "my data", "our data", "my org", or "our headcount".
+---
+
 # Customer Data — Upload, Map & Query Skill
 
 ## When to use

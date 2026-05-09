@@ -1,6 +1,6 @@
 ---
 name: artifacts
-description: Structured JSON artifact schemas for Ivy's frontend rendering. Use when producing HR analysis output that needs to render as rich cards in the WorkVine.ai UI.
+description: Structured JSON artifact schemas for Ivy's frontend rendering. Use when producing HR analysis output — skills analysis, skills gap, automation assessment, career ladder/path, workforce plan, job analysis, role design, task decomposition, org design, bias/fairness audit, labor market trends, skill deep dives, onboarding plans, or any "tell me about / explain / what is X" workforce topic. Covers insight cards, functional outlooks, AI impact triangulation, decision transparency, and upskill/reskill transitions.
 ---
 
 # Output Formats — Structured Artifacts

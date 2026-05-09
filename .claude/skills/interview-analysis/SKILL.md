@@ -1,3 +1,8 @@
+---
+name: interview-analysis
+description: Interview Analysis — Ivy Activity Data Collection. Use when running practitioner interviews, activity analysis or activity audit projects, time studies, work observation sessions, or when an HR leader wants to collect activity data, run practitioner interviews, understand how employees spend their time, or set up an interview project.
+---
+
 # Interview Analysis — Ivy Activity Data Collection
 
 ## When This Skill Loads

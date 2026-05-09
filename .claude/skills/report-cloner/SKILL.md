@@ -1,3 +1,8 @@
+---
+name: report-cloner
+description: Report Cloner — Orchestration Skill. Use when the user wants to clone, replicate, or update an existing board/executive report, ingest a PDF report as a template, generate a new version of a report from fresh data, or reference report-cloner tools (clone_create, ingest_pdf, clone_status).
+---
+
 # Report Cloner — Orchestration Skill
 
 Clone an existing board report by ingesting the original PDF, mapping fresh HRIS data, analyzing metrics, and generating an updated report that is structurally and stylistically indistinguishable from the original.
