@@ -13,8 +13,8 @@ This is the Lab branch of Ivy. Optimised for terminal-first research from one ma
 When working with external data sources, prefer the shell-pipe pattern over multi-MCP-call orchestration:
 
 ```bash
-company-goat sec-form-d "AstraZeneca" | jq '.filings[] | select(.amount > 1000000)' | tee /tmp/big-filings.json
-sqlite3 pp-mirrors/company-goat.db "SELECT * FROM results WHERE invocation LIKE '%sec-form-d%' ORDER BY ts DESC LIMIT 2"
+company-goat-pp-cli funding stripe --pick 1 --agent | jq '.filings[] | select(.amount_raised > 1000000)' | tee /tmp/big-filings.json
+company-goat-pp-cli snapshot stripe --pick 1 --agent | jq '.engineering.public_repos, .funding.filings | length'
 ```
 
 The model writes the pipeline; Bash runs it; only the final shape lands in your context. This is the token-economics win the Lab is built around.
@@ -55,3 +55,4 @@ The model writes the pipeline; Bash runs it; only the final shape lands in your 
 ## Imports
 
 @.claude/skills/routing/SKILL.md
+@pp-tools/INDEX.md

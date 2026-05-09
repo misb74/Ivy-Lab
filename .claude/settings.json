@@ -28,7 +28,11 @@
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(printing-press:*)",
+      "Bash(company-goat-pp-cli:*)",
+      "Bash(/Users/moraybrown/go/bin/printing-press:*)",
+      "Bash(/Users/moraybrown/go/bin/company-goat-pp-cli:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
