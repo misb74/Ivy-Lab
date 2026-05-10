@@ -45,5 +45,28 @@
       "signal",
       "sync"
     ]
+  },
+  "google-places": {
+    "binary": "google-places-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/google-places-pp-cli",
+    "source_path": "pp-tools/google-places-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "library-cli",
+    "legal_class": "public_api",
+    "domain": "place-discovery",
+    "lab_only": false,
+    "sources": [
+      "Google Places API (New) — places.googleapis.com/v1"
+    ],
+    "auth_required": ["GOOGLE_PLACES_API_KEY"],
+    "billing_note": "Requires Google Cloud project with billing enabled. $200/month free credit covers ~6K text searches; pay-per-call above the cap.",
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "search",
+      "nearby",
+      "details",
+      "autocomplete",
+      "doctor"
+    ]
   }
 }
