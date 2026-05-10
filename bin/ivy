@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Ivy launcher with splash screen
+# Ivy-Lab cinematic launcher — sub-second splash, then exec claude.
+# Pure bash + ANSI escapes + jq. No figlet, no node. ~940ms animation budget.
 
 set -euo pipefail
 
@@ -7,93 +8,216 @@ set -euo pipefail
 RST='\033[0m'
 BOLD='\033[1m'
 DIM='\033[2m'
-# Rose gradient
+# Rose gradient — dark to light
 R1='\033[38;5;52m'    # darkest
 R2='\033[38;5;124m'   # deep
 R3='\033[38;5;197m'   # primary rose
 R4='\033[38;5;204m'   # light
 R5='\033[38;5;217m'   # palest
-# Slate (Ivy design system)
+# Slate
 S1='\033[38;5;236m'
 S2='\033[38;5;245m'
 S3='\033[38;5;252m'
 BAR='\033[38;5;236m'
 
-# ── resolve symlinks to find real Ivy dir ──────────────────────
+# ── resolve symlinks to find Ivy-Lab dir ────────────────────────────
 SELF="$0"
 while [ -L "$SELF" ]; do
   DIR="$(cd "$(dirname "$SELF")" && pwd)"
   SELF="$(readlink "$SELF")"
   [[ "$SELF" != /* ]] && SELF="$DIR/$SELF"
 done
-IVY_DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
-VERSION=$(grep '"version"' "$IVY_DIR/package.json" | head -1 | sed 's/.*: *"\(.*\)".*/\1/')
-NOW=$(date "+%A, %B %-d %Y  %H:%M")
+LAB_DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+
+# ── tty detection ───────────────────────────────────────────────────
+if [ -t 1 ]; then
+  TTY=1
+else
+  TTY=0
+fi
 
 # ── terminal width ──────────────────────────────────────────────────
 COLS=$(tput cols 2>/dev/null || echo 80)
+COMPACT=0
+if (( COLS < 60 )); then
+  COMPACT=1
+fi
 
+# ── config readers (silent fallback to "?" on any failure) ──────────
+read_or_q() { "$@" 2>/dev/null || echo "?"; }
+
+VERSION=$(read_or_q grep '"version"' "$LAB_DIR/package.json" | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
+[ -z "$VERSION" ] && VERSION="?"
+
+PHASES=$(git -C "$LAB_DIR" log --oneline 2>/dev/null | grep -cE '\(#[0-9]+\)$' || echo "?")
+
+ALLOW_N="?"
+DENY_N="?"
+if [ -f "$LAB_DIR/.claude/settings.json" ] && command -v jq >/dev/null 2>&1; then
+  ALLOW_N=$(jq -r '.permissions.allow | length // 0' "$LAB_DIR/.claude/settings.json" 2>/dev/null || echo "?")
+  DENY_N=$(jq -r '.permissions.deny | length // 0' "$LAB_DIR/.claude/settings.json" 2>/dev/null || echo "?")
+fi
+
+MCP_N="?"
+if [ -f "$LAB_DIR/.mcp.json" ] && command -v jq >/dev/null 2>&1; then
+  MCP_N=$(jq -r '.mcpServers | length // 0' "$LAB_DIR/.mcp.json" 2>/dev/null || echo "?")
+fi
+
+SKILL_N="?"
+if [ -d "$LAB_DIR/.claude/skills" ]; then
+  SKILL_N=$(ls "$LAB_DIR/.claude/skills" 2>/dev/null | wc -l | tr -d ' ')
+fi
+
+PP_LIST="none"
+PP_N=0
+if [ -f "$LAB_DIR/pp-tools/registry.json" ] && command -v jq >/dev/null 2>&1; then
+  PP_N=$(jq -r 'keys | length' "$LAB_DIR/pp-tools/registry.json" 2>/dev/null || echo 0)
+  PP_LIST=$(jq -r 'keys | join(" · ")' "$LAB_DIR/pp-tools/registry.json" 2>/dev/null || echo "?")
+fi
+
+HOOKS_STATUS="not configured"
+if [ -f "$LAB_DIR/scripts/preflight.js" ] && [ -f "$LAB_DIR/scripts/audit-and-mirror.js" ]; then
+  HOOKS_STATUS="preflight + audit-and-mirror live"
+elif [ -f "$LAB_DIR/scripts/preflight.js" ] || [ -f "$LAB_DIR/scripts/audit-and-mirror.js" ]; then
+  HOOKS_STATUS="partial"
+fi
+
+GUARD="${R3}off${RST}"
+if [ "${IVY_LAB_BASH_DISABLED:-}" = "1" ]; then
+  GUARD="${BOLD}${R3}⚠ ACTIVE (Bash blocked)${RST}"
+fi
+
+# ── helpers ─────────────────────────────────────────────────────────
 center() {
   local text="$1"
   local stripped
-  stripped=$(echo -e "$text" | sed 's/\x1b\[[0-9;]*m//g')
+  stripped=$(printf '%b' "$text" | sed 's/\x1b\[[0-9;]*m//g')
   local len=${#stripped}
   local pad=$(( (COLS - len) / 2 ))
   (( pad < 0 )) && pad=0
   printf "%*s" "$pad" ""
-  echo -e "$text"
+  printf '%b\n' "$text"
 }
 
 rule() {
-  local char="${1:─}"
   local line=""
-  for ((i=0; i<COLS; i++)); do line+="$char"; done
-  echo -e "${BAR}${line}${RST}"
+  for ((i=0; i<COLS; i++)); do line+="─"; done
+  printf '%b%s%b\n' "$BAR" "$line" "$RST"
 }
 
-# ── clear & draw ────────────────────────────────────────────────────
-clear
-echo ""
+# Save cursor pos, draw text, restore — used for repaint frames
+SAVE='\033[s'
+RESTORE='\033[u'
 
-# Vine decorations
-center "${R1}  ·  ${R2}·    ${R1}·        ${R2}·    ${R1}·  ${R2}·  "
-center "${R2}       ·       ${R1}·   ${R2}·        ${R1}·     "
-echo ""
+# Wordmark — IVY-LAB in ANSI Shadow, 6 rows. Each row has 7 logical "columns"
+# split by character so we can apply column-wise gradient.
+# Row 0..5 of "IVY-LAB":
+WM_ROW=(
+  '██╗██╗   ██╗██╗   ██╗   ██╗      █████╗ ██████╗ '
+  '██║██║   ██║╚██╗ ██╔╝   ██║     ██╔══██╗██╔══██╗'
+  '██║██║   ██║ ╚████╔╝    ██║     ███████║██████╔╝'
+  '██║╚██╗ ██╔╝  ╚██╔╝     ██║     ██╔══██║██╔══██╗'
+  '██║ ╚████╔╝    ██║      ███████╗██║  ██║██████╔╝'
+  '╚═╝  ╚═══╝     ╚═╝      ╚══════╝╚═╝  ╚═╝╚═════╝ '
+)
 
-# ── Hand logo (Ivy icon) ───────────────────────────────────────────
-center "${R4}              │   │    │${RST}"
-center "${R4}              │   │    │${RST}"
-center "${R3}              │   │    │${RST}"
-center "${R3}       ╭──╮   │   │    │${RST}"
-center "${R3}       │  │   │   │    │${RST}"
-center "${R3}       ╰──╯  ╱    │    │${RST}"
-center "${R2}             │         │${RST}"
-center "${R2}              ╲       ╱${RST}"
-center "${R1}               ╰─────╯${RST}"
-echo ""
+# Print wordmark with a uniform color for one frame
+print_wordmark_color() {
+  local color="$1"
+  local row
+  for row in "${WM_ROW[@]}"; do
+    center "${color}${row}${RST}"
+  done
+}
 
-# ── IVY text ────────────────────────────────────────────────────────
-center "${R3}${BOLD}  ██╗${R4}██╗   ██╗${R5}██╗   ██╗${RST}"
-center "${R3}${BOLD}  ██║${R4}██║   ██║${R5}╚██╗ ██╔╝${RST}"
-center "${R3}${BOLD}  ██║${R4}██║   ██║${R5} ╚████╔╝ ${RST}"
-center "${R3}${BOLD}  ██║${R4}╚██╗ ██╔╝${R5}  ╚██╔╝  ${RST}"
-center "${R3}${BOLD}  ██║${R4} ╚████╔╝ ${R5}   ██║   ${RST}"
-center "${R3}${BOLD}  ╚═╝${R4}  ╚═══╝  ${R5}   ╚═╝   ${RST}"
+# Move cursor up N lines
+cursor_up() { printf '\033[%sA' "$1"; }
 
-echo ""
-center "${S2}Workforce Intelligence Agent${RST}"
-echo ""
-echo ""
+# ── render: compact mode (narrow terminals) ─────────────────────────
+render_compact() {
+  echo
+  center "${R3}${BOLD}IVY ▸ LAB${RST}  ${S2}v${VERSION}${RST}"
+  echo
+  printf "   %b%-10s%b %s\n" "$S2" "bash"     "$RST" "$ALLOW_N allow / $DENY_N deny"
+  printf "   %b%-10s%b %s\n" "$S2" "mcp"      "$RST" "$MCP_N servers · $SKILL_N skills"
+  printf "   %b%-10s%b %s\n" "$S2" "pp tools" "$RST" "$PP_N cli ($PP_LIST)"
+  printf "   %b%-10s%b %s\n" "$S2" "hooks"    "$RST" "$HOOKS_STATUS"
+  printf "   %b%-10s%b %b\n" "$S2" "guard"    "$RST" "$GUARD"
+  echo
+  rule
+  echo
+}
 
-# ── Info block ──────────────────────────────────────────────────────
-center "${S2}version${RST}     ${R4}v${VERSION}${RST}"
-center "${S2}   time${RST}     ${S3}${NOW}${RST}"
-center "${S2}   mode${RST}     ${R3}▸  Claude Code${RST}"
-echo ""
+# ── render: full mode ───────────────────────────────────────────────
+render_full() {
+  clear
+  echo
+  # Vine flourish (subtle texture)
+  center "${R1}  ·  ${R2}·    ${R1}·        ${R2}·    ${R1}·  ${R2}·  "
+  center "${R2}       ·       ${R1}·   ${R2}·        ${R1}·     "
+  echo
 
-rule "─"
-echo ""
+  if [ "$TTY" = "1" ]; then
+    # Frame 1: dark
+    print_wordmark_color "$R1"
+    sleep 0.06
+    cursor_up 6
+    # Frame 2: deep
+    print_wordmark_color "$R2"
+    sleep 0.06
+    cursor_up 6
+    # Frame 3: primary
+    print_wordmark_color "$R3"
+    sleep 0.06
+    cursor_up 6
+    # Frame 4: light (final)
+    print_wordmark_color "$R4"
+  else
+    # Non-tty: just print final state once, no animation
+    print_wordmark_color "$R4"
+  fi
 
-# ── launch claude ───────────────────────────────────────────────────
-cd "$IVY_DIR"
+  echo
+  # Tagline — typewriter
+  local tagline="terminal lab · workforce intel + pp"
+  if [ "$TTY" = "1" ]; then
+    local pad_text="$tagline"
+    local pad=$(( (COLS - ${#pad_text}) / 2 ))
+    (( pad < 0 )) && pad=0
+    printf "%*s" "$pad" ""
+    printf "${S2}"
+    local i=0
+    while (( i < ${#tagline} )); do
+      printf '%s' "${tagline:$i:1}"
+      sleep 0.02
+      i=$(( i + 1 ))
+    done
+    printf "${RST}\n"
+  else
+    center "${S2}${tagline}${RST}"
+  fi
+  echo
+  echo
+
+  # Status table (instant). %b interprets \033 escapes in arguments.
+  printf "   %b%-10s%b  %b\n"  "$S2" "version"  "$RST"  "${R4}v${VERSION}${RST}  ${DIM}·  ${PHASES} merged PRs${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "bash"     "$RST"  "${S3}${ALLOW_N} allow / ${DENY_N} deny${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "mcp"      "$RST"  "${S3}${MCP_N} servers · ${SKILL_N} skills${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "pp tools" "$RST"  "${S3}${PP_N} cli  ${DIM}(${PP_LIST})${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "hooks"    "$RST"  "${S3}${HOOKS_STATUS}${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "bot"      "$RST"  "${S3}@IvyLabsBot${RST}  ${DIM}·  transport ready${RST}"
+  printf "   %b%-10s%b  %b\n"  "$S2" "guard"    "$RST"  "${S3}IVY_LAB_BASH_DISABLED  ▸  ${GUARD}"
+  echo
+  rule
+  echo
+}
+
+# ── render & launch ─────────────────────────────────────────────────
+if [ "$COMPACT" = "1" ]; then
+  render_compact
+else
+  render_full
+fi
+
+cd "$LAB_DIR"
 exec claude "$@"
