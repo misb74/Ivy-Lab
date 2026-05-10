@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = process.env.IVY_PROJECT_DIR || path.resolve(__dirname, '../..');
 const dataDir = path.join(projectDir, 'data', 'telegram-bot');
 const responsesDir = path.join(dataDir, 'responses');
+const uploadsDir = path.join(dataDir, 'uploads');
 const sessionsPath = path.join(projectDir, 'bot', 'sessions.json');
 
 async function main(): Promise<void> {
@@ -14,6 +15,7 @@ async function main(): Promise<void> {
   console.log(`[bot] Project dir: ${projectDir}`);
   console.log(`[bot] Sessions file: ${sessionsPath}`);
   console.log(`[bot] Responses dir: ${responsesDir}`);
+  console.log(`[bot] Uploads dir:   ${uploadsDir}`);
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) {
@@ -34,6 +36,7 @@ async function main(): Promise<void> {
     token,
     cwd: projectDir,
     responsesDir,
+    uploadsDir,
     sessions,
   });
 
