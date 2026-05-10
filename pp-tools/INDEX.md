@@ -178,3 +178,67 @@ The Places API requires an `X-Goog-FieldMask` header. The CLI sets sensible defa
 - **Use google-places:** "find me restaurants matching X" / "what's near here" / "is this place any good" / "what are this place's hours" / "phone number / website / map link for X".
 - **Use table-reservation-goat:** "is this place bookable tonight at 8pm" / "watch for cancellations" / "book a table".
 - **Combine:** Places to discover → table-reservation-goat to check availability → google-places `details` to get phone/website if booking falls through.
+
+---
+
+## `jobposting-schema-pp-cli` — schema.org JobPosting JSON-LD extractor
+
+**Binary:** `/Users/moraybrown/.local/bin/jobposting-schema-pp-cli` (symlink → `pp-tools/jobposting-schema-pp-cli/cli.mjs`).
+**Version:** 0.1.0.
+**What it does:** fetches public career pages, extracts schema.org `JobPosting` blocks from `<script type="application/ld+json">` tags, normalizes to a unified shape. No auth, no API key — relies on data employers already publish for Google for Jobs SEO.
+
+**Coverage reality (read this):** works on sites that ship JSON-LD **server-side**. That includes USAJobs, most government job pages, classic-CMS career sites, and any employer that takes Google for Jobs SEO seriously. **Does NOT work** on most 2026-era SPA career sites (Greenhouse `job-boards.greenhouse.io`, Stripe, Apple, Microsoft, LinkedIn, etc.) — those hydrate JSON-LD client-side, so a server-side fetch returns 0 blocks. For those, route to `ats-surface-pp-cli` (when built) or the upstream ATS API directly.
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `extract <url>` | Fetch one URL, extract JobPosting JSON-LD blocks, normalize. |
+| `sitemap <url>` | Fetch a sitemap.xml, scan each URL for JobPosting blocks. Bounded concurrency. Detects sitemap-of-sitemaps and returns nested URLs to scan separately. |
+| `discover <domain>` | Probe common career-page paths (`/sitemap.xml`, `/careers`, `/jobs`, etc.) and report HTTP status — useful for finding the right sitemap before running `sitemap`. |
+| `doctor` | Health check. |
+
+### Common invocation patterns
+
+```bash
+# Extract one job (USAJobs example — known to ship JSON-LD)
+jobposting-schema-pp-cli extract https://www.usajobs.gov/job/856555200 \
+  | jq '.jobs[] | {title, location, salary, datePosted}'
+
+# Find a careers sitemap before scanning
+jobposting-schema-pp-cli discover example.com \
+  | jq '.candidates[] | select(.status==200)'
+
+# Scan a sitemap, filter to remote-only roles
+jobposting-schema-pp-cli sitemap https://example.com/jobs/sitemap.xml --limit 100 \
+  | jq '[.jobs[] | select(.remote)] | length'
+
+# Raw mode (full JSON-LD record, not normalized)
+jobposting-schema-pp-cli extract https://www.usajobs.gov/job/856555200 --raw
+```
+
+### Output shape (normalized)
+
+```json
+{
+  "title": "Registered Nurse - PACT",
+  "company": null,
+  "location": "Kansas City, MO",
+  "remote": false,
+  "employmentType": "OTHER",
+  "datePosted": "02/05/2026",
+  "validThrough": "2026-02-13",
+  "salary": { "currency": "USD", "value": 68432, "unit": "YEAR" },
+  "description": "Kansas City VA Medical Center is hiring three (3) Registered Nurse - PACT...",
+  "url": "https://www.usajobs.gov/job/856555200",
+  "source": "https://www.usajobs.gov/job/856555200"
+}
+```
+
+Errors come back as `{"error": true, "command": "...", "message": "..."}` and exit 2 — clean for agent consumption.
+
+### When to use this vs other tools
+
+- **Use jobposting-schema:** any non-ATS career page (custom CMS, government, smaller employers), or as a fallback when you don't know what platform a careers site uses.
+- **Use ats-surface (TBD):** Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee, Gem — these have structured public APIs that return more data, faster, more reliably.
+- **Combine:** `discover` to find the sitemap, then `sitemap` to bulk-extract, then pipe to `jq` for skill / location / salary analysis.

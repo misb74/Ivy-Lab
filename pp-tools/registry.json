@@ -68,5 +68,27 @@
       "autocomplete",
       "doctor"
     ]
+  },
+  "jobposting-schema": {
+    "binary": "jobposting-schema-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/jobposting-schema-pp-cli",
+    "source_path": "pp-tools/jobposting-schema-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "library-cli",
+    "legal_class": "public_structured_data",
+    "domain": "job-posting-extraction",
+    "lab_only": false,
+    "sources": [
+      "schema.org JobPosting JSON-LD blocks embedded in public career pages"
+    ],
+    "auth_required": [],
+    "coverage_note": "Works on sites that ship JSON-LD server-side (e.g. USAJobs, government sites, classic-CMS career pages, sites taking Google for Jobs SEO seriously). Many 2026-era SPA career sites (Greenhouse SPA, Stripe, Apple, Microsoft) hydrate JSON-LD client-side and return 0 blocks here — for those, route to ats-surface-pp-cli (when built) or the upstream ATS API directly.",
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "extract",
+      "sitemap",
+      "discover",
+      "doctor"
+    ]
   }
 }
