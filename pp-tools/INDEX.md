@@ -419,3 +419,92 @@ ats-surface-pp-cli scan smartrecruiters:Workday --limit 10 | jq '.jobs | length'
 - **Use reddit-pp-cli:** practitioner sentiment, vendor reputation chatter, role-demand signals from working recruiters/HR pros, thread drill-downs.
 - **Use `data-research-index` (MCP):** academic/institutional findings (HBS, Stanford DEL, etc.) — that's authoritative literature, this is folk wisdom.
 - **Combine:** Reddit for "what people are complaining about" → cross-reference with ATS hiring deltas via `ats-surface-pp-cli` to see if the chatter shows up in real hiring patterns.
+
+---
+
+## `workday-cxs-pp-cli` — Workday CXS endpoints (PERSONAL USE ONLY)
+
+**Binary:** `/Users/moraybrown/.local/bin/workday-cxs-pp-cli` (symlink → `pp-tools/workday-cxs-pp-cli/cli.mjs`).
+**Version:** 0.1.0.
+
+> ⚠️ **PERSONAL USE ONLY.** Workday's ToS prohibits scraping. The CXS endpoints this CLI hits are unauthenticated but unintended for third-party use. Output of this CLI is for **personal research only** — do NOT ship as a product feature, do NOT redistribute, do NOT crawl aggressively. Sustained heavy use can trigger tenant rate limits or IP blocks. Tenants can request blocks at any time.
+
+**What it does:** Bash-pipeable wrapper around Workday's public CXS (Career eXperience Service) endpoints — the same JSON API Workday's own careers SPA hits in the user's browser. Covers thousands of large enterprises (AstraZeneca, Sanofi, Salesforce, etc.) that `ats-surface-pp-cli` deliberately doesn't include.
+
+**Why this is split from `ats-surface-pp-cli`:** different access reality. ats-surface wraps APIs vendors actively want consumed (Greenhouse Job Board API, etc.). Workday CXS is unauthenticated-but-not-meant-for-third-parties. Mixing them would muddy the `legal_class` metadata on the registry and lose the kill-switch.
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `scan <url>` | Sweep all jobs from a Workday tenant. Paginated (20/page), paced (250ms between requests), defaults to limit 100 (max 5000). |
+| `job <url>` | Fetch full detail for one job (from its public URL). Returns the rich `jobPostingInfo` shape — title, full description HTML, jobReqId, dates, location, etc. |
+| `doctor` | Health check — probes AstraZeneca's Workday tenant. |
+
+### URL format
+
+Workday tenants live at `{tenant}.{dc}.myworkdayjobs.com/{site}` where `{dc}` is the data center (`wd1`, `wd3`, `wd5`, `wd12`, etc.). The CLI parses any of:
+
+- `https://astrazeneca.wd3.myworkdayjobs.com/Careers`
+- `https://astrazeneca.wd3.myworkdayjobs.com/en-US/Careers` (locale prefix tolerated)
+- `astrazeneca.wd3.myworkdayjobs.com/Careers` (scheme inferred)
+
+### Common invocation patterns
+
+```bash
+# What's the size of AstraZeneca's open hiring?
+workday-cxs-pp-cli scan https://astrazeneca.wd3.myworkdayjobs.com/Careers --limit 5 \
+  | jq '.total_at_tenant'
+
+# AI-keyword roles, by location
+workday-cxs-pp-cli scan https://astrazeneca.wd3.myworkdayjobs.com/Careers --search "AI" --limit 100 \
+  | jq -r '.jobs[] | "\(.location) — \(.title)"'
+
+# Sample of recently-posted oncology roles
+workday-cxs-pp-cli scan https://astrazeneca.wd3.myworkdayjobs.com/Careers --search "oncology" --limit 50 \
+  | jq '.jobs[] | select(.postedOn | test("Today|Yesterday|days ago"; "i"))'
+
+# Drill into one job's full description
+workday-cxs-pp-cli job "https://astrazeneca.wd3.myworkdayjobs.com/Careers/job/Cambridge-UK/Senior-Director_R-200124" \
+  | jq '.detail | {title, location, jobReqId, descPreview: (.jobDescription | gsub("<[^>]+>"; "") | .[0:500])}'
+```
+
+### Output shape (scan)
+
+```json
+{
+  "queried_at": "2026-05-10T...",
+  "tenant": "astrazeneca",
+  "site": "Careers",
+  "total_at_tenant": 1487,
+  "fetched": 100,
+  "after_filters": 42,
+  "elapsed_ms": 4823,
+  "jobs": [
+    {
+      "tenant": "astrazeneca",
+      "site": "Careers",
+      "title": "Senior Director, Customer Engagement",
+      "location": "UK - Cambridge",
+      "timeType": "Full time",
+      "postedOn": "Posted Yesterday",
+      "startDate": null,
+      "externalPath": "/job/UK---Cambridge/Senior-Director_R-200124",
+      "url": "https://astrazeneca.wd3.myworkdayjobs.com/Careers/job/UK---Cambridge/Senior-Director_R-200124"
+    }
+  ]
+}
+```
+
+### Pacing & politeness
+
+- 250ms minimum delay between sequential paginated requests.
+- Default concurrency 1 (sequential pages). `--concurrency` capped at 4.
+- User-Agent identifies the CLI clearly: `workday-cxs-pp-cli/0.1.0 (personal research)`.
+- If you find yourself wanting to scan 5000+ jobs/day, you're using it wrong for the personal-use scope.
+
+### When to use this vs other tools
+
+- **Use workday-cxs:** any Workday-hosted enterprise that's NOT on a Greenhouse/Lever/Ashby/SmartRecruiters/Workable/Recruitee surface (which is most large enterprises — pharma, finance, retail, traditional tech).
+- **Use ats-surface:** anything on the structured-public-API ATSes — that's the safe-to-ship path.
+- **Use jobposting-schema:** custom CMS career sites with server-rendered JSON-LD.

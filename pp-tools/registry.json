@@ -69,6 +69,28 @@
       "doctor"
     ]
   },
+  "workday-cxs": {
+    "binary": "workday-cxs-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/workday-cxs-pp-cli",
+    "source_path": "pp-tools/workday-cxs-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "library-cli",
+    "legal_class": "scraped_endpoint",
+    "scope": "PERSONAL_USE_ONLY",
+    "domain": "hiring-intel",
+    "lab_only": true,
+    "sources": [
+      "Workday CXS endpoints — {tenant}.{dc}.myworkdayjobs.com/wday/cxs/..."
+    ],
+    "auth_required": [],
+    "legal_note": "Workday's ToS prohibits scraping. Output of this CLI is for personal research only — do NOT redistribute, do NOT ship as a product feature, do NOT crawl aggressively. Sustained heavy use may trigger tenant rate limits or IP blocks. Endpoints are unauthenticated but unstable; tenants can request blocks at any time.",
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "scan",
+      "job",
+      "doctor"
+    ]
+  },
   "reddit": {
     "binary": "reddit-pp-cli",
     "binary_absolute": "/Users/moraybrown/.local/bin/reddit-pp-cli",
