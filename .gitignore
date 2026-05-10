@@ -38,3 +38,6 @@ outputs/
 
 # Telegram bot local state
 data/telegram-bot/uploads/
+data/telegram-bot/responses/
+bot/sessions.json
+bot/sessions.json.bak
