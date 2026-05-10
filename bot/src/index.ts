@@ -1,78 +1,59 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { MCPManager } from './mcp-manager.js';
-import { ConversationStore } from './conversation-store.js';
-import { AuditLogger } from './audit.js';
-import { FileManager } from './file-manager.js';
-import { createBot } from './telegram.js';
-
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-if (!TELEGRAM_BOT_TOKEN) {
-  console.error('TELEGRAM_BOT_TOKEN is required');
-  process.exit(1);
-}
-
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.error('ANTHROPIC_API_KEY is required');
-  process.exit(1);
-}
-
-if (!process.env.ALLOWED_TELEGRAM_IDS) {
-  console.warn('[bot] ALLOWED_TELEGRAM_IDS not set — bot will reject ALL users until you add your Telegram user ID. Message the bot once to log your ID, then set ALLOWED_TELEGRAM_IDS in .env and restart.');
-}
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { buildBot } from './telegram.js';
+import { SessionStore } from './sessions.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = process.env.IVY_PROJECT_DIR || path.resolve(__dirname, '../..');
 const dataDir = path.join(projectDir, 'data', 'telegram-bot');
+const responsesDir = path.join(dataDir, 'responses');
+const sessionsPath = path.join(projectDir, 'bot', 'sessions.json');
 
 async function main(): Promise<void> {
-  console.log('[bot] Starting Ivy Telegram Bot...');
+  console.log('[bot] Starting Ivy-Lab Telegram bot');
   console.log(`[bot] Project dir: ${projectDir}`);
+  console.log(`[bot] Sessions file: ${sessionsPath}`);
+  console.log(`[bot] Responses dir: ${responsesDir}`);
 
-  const mcpManager = new MCPManager();
-  await mcpManager.initialize(path.join(projectDir, '.mcp.json'));
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) {
+    console.error('[bot] TELEGRAM_BOT_TOKEN not set in env. Exiting.');
+    process.exit(1);
+  }
 
-  const conversationStore = new ConversationStore(
-    path.join(dataDir, 'conversations.db'),
-  );
+  if (!process.env.ALLOWED_TELEGRAM_IDS) {
+    console.warn(
+      '[bot] ALLOWED_TELEGRAM_IDS not set — bot will reject ALL users until you add ' +
+      'your Telegram user ID. Message the bot once to log your ID, then set ' +
+      'ALLOWED_TELEGRAM_IDS in .env and restart.',
+    );
+  }
 
-  const audit = new AuditLogger(
-    path.join(dataDir, 'audit.db'),
-  );
+  const sessions = new SessionStore(sessionsPath);
+  const bot = buildBot({
+    token,
+    cwd: projectDir,
+    responsesDir,
+    sessions,
+  });
 
-  const fileManager = new FileManager(
-    path.join(dataDir, 'uploads'),
-    projectDir,
-  );
-
-  const cleaned = fileManager.cleanup(24 * 60 * 60 * 1000);
-  if (cleaned > 0) console.log(`[bot] Cleaned ${cleaned} old uploads`);
-
-  setInterval(() => {
-    const n = fileManager.cleanup(24 * 60 * 60 * 1000);
-    if (n > 0) console.log(`[bot] Cleaned ${n} old uploads`);
-  }, 6 * 60 * 60 * 1000);
-
-  const bot = createBot(TELEGRAM_BOT_TOKEN as string, mcpManager, conversationStore, audit, fileManager);
-
-  const shutdown = async (signal: string) => {
-    console.log(`\n[bot] ${signal} received, shutting down...`);
-    await bot.stop();
-    await mcpManager.shutdown();
-    conversationStore.close();
-    audit.close();
-    console.log('[bot] Goodbye.');
+  // Graceful shutdown
+  const shutdown = (signal: string) => {
+    console.log(`[bot] Received ${signal} — stopping`);
+    void bot.stop();
     process.exit(0);
   };
-
   process.on('SIGINT', () => shutdown('SIGINT'));
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-  console.log('[bot] Bot is running. Press Ctrl+C to stop.');
-  await bot.start();
+  await bot.start({
+    onStart: info => {
+      console.log(`[bot] Connected as @${info.username} (id=${info.id}). Polling.`);
+    },
+  });
 }
 
-main().catch((err) => {
-  console.error('[bot] Fatal error:', err);
+main().catch(err => {
+  console.error('[bot] Fatal:', err);
   process.exit(1);
 });

@@ -11,6 +11,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { detectPPCall } from './lib/pp-detect.js';
 import { scrubSecrets } from './lib/scrub-secrets.js';
+import { detectProtectedAttributes } from './lib/eeoc-detect.js';
 
 const DEFAULT_DATA_DIR = '/Users/moraybrown/Desktop/Ivy-Lab/data';
 const DEFAULT_MIRRORS_DIR = '/Users/moraybrown/Desktop/Ivy-Lab/pp-mirrors';
@@ -47,6 +48,18 @@ CREATE TABLE IF NOT EXISTS tool_calls (
 CREATE INDEX IF NOT EXISTS idx_tool ON tool_calls(tool);
 CREATE INDEX IF NOT EXISTS idx_session ON tool_calls(session_id);
 `);
+  // Graceful migration: add protected_attributes column if it doesn't exist.
+  // sqlite3's ALTER TABLE ADD COLUMN is idempotent only if we check first.
+  try {
+    const cols = sqlExec(AUDIT_DB, 'PRAGMA table_info(tool_calls);').trim().split('\n');
+    const hasColumn = cols.some(line => line.split('|')[1] === 'protected_attributes');
+    if (!hasColumn) {
+      sqlExec(AUDIT_DB, 'ALTER TABLE tool_calls ADD COLUMN protected_attributes TEXT;');
+    }
+  } catch {
+    // If migration fails (e.g. concurrent runner), continue — INSERT will still work
+    // because the column gets added on next idle invocation.
+  }
 }
 
 function ensureMirrorSchema(source) {
@@ -101,14 +114,17 @@ async function main() {
 
   // Always: audit row
   ensureAuditSchema();
+  const protectedAttrs = detectProtectedAttributes(inputJson + ' ' + (typeof toolResponse === 'string' ? toolResponse : JSON.stringify(toolResponse)));
+  const protectedAttrsStr = protectedAttrs.length > 0 ? protectedAttrs.join(',') : null;
   sqlExec(AUDIT_DB, `
-INSERT INTO tool_calls (session_id, tool, input_redacted, output_size, exit_status)
+INSERT INTO tool_calls (session_id, tool, input_redacted, output_size, exit_status, protected_attributes)
 VALUES (
   ${escapeSqlString(sessionId)},
   ${escapeSqlString(toolName)},
   ${escapeSqlString(inputRedacted)},
   ${outputSize},
-  ${escapeSqlString(exitStatus)}
+  ${escapeSqlString(exitStatus)},
+  ${escapeSqlString(protectedAttrsStr)}
 );
 `);
 

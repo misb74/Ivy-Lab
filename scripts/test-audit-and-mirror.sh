@@ -42,6 +42,16 @@ secret_in_db=$(sqlite3 "$TEST_AUDIT_DB" "SELECT input_redacted FROM tool_calls W
 if echo "$secret_in_db" | grep -q "REDACTED"; then echo "PASS  secret-scrubbed-in-audit"; else echo "FAIL  secret-scrubbed-in-audit (got: $secret_in_db)"; exit 1; fi
 if echo "$secret_in_db" | grep -q "sk-ant"; then echo "FAIL  secret-leaked-in-audit (got: $secret_in_db)"; exit 1; fi
 
+# Test 6: protected attributes column populated for EEOC-relevant input
+echo '{"tool_name":"Bash","tool_input":{"command":"check hiring fairness by age and disability"},"tool_response":{"output":"ok"},"session_id":"sess-eeoc"}' | $HOOK
+attrs=$(sqlite3 "$TEST_AUDIT_DB" "SELECT protected_attributes FROM tool_calls WHERE session_id='sess-eeoc'" 2>/dev/null)
+if echo "$attrs" | grep -q "age" && echo "$attrs" | grep -q "disability"; then echo "PASS  eeoc-attrs-stored"; else echo "FAIL  eeoc-attrs-stored (got: $attrs)"; exit 1; fi
+
+# Test 7: protected_attributes empty for non-EEOC input
+echo '{"tool_name":"Read","tool_input":{"file_path":"/tmp/foo.txt"},"tool_response":{"output":"hello"},"session_id":"sess-noeeoc"}' | $HOOK
+attrs=$(sqlite3 "$TEST_AUDIT_DB" "SELECT protected_attributes FROM tool_calls WHERE session_id='sess-noeeoc'" 2>/dev/null)
+if [ -z "$attrs" ]; then echo "PASS  no-eeoc-empty"; else echo "FAIL  no-eeoc-empty (got: $attrs)"; exit 1; fi
+
 # Cleanup
 rm -rf "$TEST_DATA_DIR"
 
