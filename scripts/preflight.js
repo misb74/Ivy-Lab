@@ -79,10 +79,14 @@ async function main() {
     }
   }
 
-  // Behavior 3: secret-leak abort (covers all tools)
+  // Behavior 3: secret-leak warn (was abort).
+  // Original Phase 4 design called this a fail-safe, not primary defence —
+  // downstream audit hook already scrubs before persisting. Blocking the live
+  // call produced false positives on .env path values, Supabase JWTs that
+  // legitimately appear in HTTP traffic, etc. Now informational only.
   const inputText = JSON.stringify(toolInput);
   if (containsSecret(inputText)) {
-    block(`tool input appears to contain a secret (Anthropic/OpenAI/AWS/JWT/GitHub PAT shape). Aborting before it leaks into context.`);
+    warn(`tool input matched a secret pattern (Anthropic/OpenAI/AWS/JWT/GitHub PAT shape or .env literal). Tool call proceeding; PostToolUse audit hook will scrub before persisting. Inspect: sqlite3 data/audit.db "SELECT input_redacted FROM tool_calls ORDER BY id DESC LIMIT 1;"`);
   }
 
   // Behavior 4: allow

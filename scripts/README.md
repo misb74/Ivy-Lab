@@ -44,6 +44,82 @@ bash scripts/test-audit-and-mirror.sh
 
 Each prints `PASS` lines per case and a final summary. Exits non-zero on first FAIL.
 
+Plus the EEOC detector test (added in Phase 5):
+
+```bash
+bash scripts/test-eeoc-detect.sh
+```
+
+## SQLite schemas
+
+### `data/audit.db` — every tool call across both transports
+
+Created and migrated automatically by `audit-and-mirror.js`. One row per Claude Code tool invocation (terminal or Telegram).
+
+```sql
+CREATE TABLE tool_calls (
+  id                   INTEGER PRIMARY KEY,
+  ts                   TEXT DEFAULT (datetime('now')),
+  session_id           TEXT,
+  tool                 TEXT,         -- "Bash", "Read", "mcp__data-onet__...", etc.
+  input_redacted       TEXT,         -- JSON of tool input, scrubbed for secrets
+  output_size          INTEGER,      -- byte length of response
+  exit_status          TEXT,         -- "ok" | "error"
+  protected_attributes TEXT          -- comma-separated EEOC tags (Phase 5+) or NULL
+);
+CREATE INDEX idx_tool    ON tool_calls(tool);
+CREATE INDEX idx_session ON tool_calls(session_id);
+```
+
+Useful queries:
+
+```bash
+# Recent tool calls
+sqlite3 data/audit.db "SELECT ts, tool, substr(input_redacted, 1, 60) FROM tool_calls ORDER BY ts DESC LIMIT 20;"
+
+# Anything EEOC-tagged
+sqlite3 data/audit.db "SELECT ts, tool, protected_attributes FROM tool_calls WHERE protected_attributes IS NOT NULL ORDER BY ts DESC LIMIT 10;"
+
+# Tool-call frequency leaderboard
+sqlite3 data/audit.db "SELECT tool, count(*) AS calls FROM tool_calls GROUP BY tool ORDER BY calls DESC LIMIT 15;"
+
+# Per-session activity
+sqlite3 data/audit.db "SELECT session_id, count(*), min(ts), max(ts) FROM tool_calls GROUP BY session_id ORDER BY max(ts) DESC LIMIT 5;"
+```
+
+### `pp-mirrors/<source>.db` — per-source PP CLI invocations
+
+One DB per known PP CLI from `pp-tools/registry.json`. Created lazily on first matching Bash invocation. Same schema across all sources — uniform tap.
+
+```sql
+CREATE TABLE results (
+  id          INTEGER PRIMARY KEY,
+  ts          TEXT DEFAULT (datetime('now')),
+  invocation  TEXT,         -- exact command line, e.g. "company-goat-pp-cli funding stripe --pick 1 --agent"
+  exit_code   INTEGER,      -- 0 on success
+  stdout_json TEXT,         -- response body (scrubbed for secrets)
+  manifest    TEXT          -- JSON metadata: {source, binary, ts}
+);
+CREATE INDEX idx_invocation ON results(invocation);
+```
+
+Useful queries:
+
+```bash
+# All company-goat invocations and their response sizes
+sqlite3 pp-mirrors/company-goat.db "SELECT ts, invocation, length(stdout_json) FROM results ORDER BY ts DESC LIMIT 10;"
+
+# "What changed since last sync?" — diff the two most recent rows for an invocation
+sqlite3 pp-mirrors/company-goat.db "SELECT stdout_json FROM results WHERE invocation = 'company-goat-pp-cli funding stripe --pick 1 --agent' ORDER BY ts DESC LIMIT 2;"
+
+# Total PP calls per source
+for db in pp-mirrors/*.db; do
+  echo "$db: $(sqlite3 "$db" "SELECT count(*) FROM results")"
+done
+```
+
+The mirror is a **tap, not a cache** — every PP call hits upstream every time. See `docs/superpowers/specs/2026-05-10-mirror-cache-decision.md` for why.
+
 ## Why system `sqlite3` instead of `better-sqlite3`?
 
 `better-sqlite3` is a Node native module that requires `node-gyp` to compile bindings. On macOS 26 beta with CLT-only (no Xcode.app), `node-gyp` v11's `XcodeVersion()` regex breaks and the build fails. Phase 1 worked around this with `--ignore-scripts`, but that means `better-sqlite3` is not available at runtime.

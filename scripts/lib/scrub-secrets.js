@@ -23,6 +23,12 @@ const SECRET_PATTERNS = [
   /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,
 ];
 
+// Heuristic: only treat a .env value as a secret if its key name suggests one,
+// and the value isn't an obvious public string (path, URL, plain integer).
+// Prevents IVY_PROJECT_DIR=/Users/.../Ivy-Lab from over-redacting every tool
+// input that mentions the project path.
+const SECRET_KEY_RE = /(KEY|TOKEN|SECRET|PASSWORD|PASS|JWT|AUTH|CREDENTIAL|API)/i;
+
 function loadEnvLiterals() {
   // Load value strings from .env so we can redact them too.
   // Returns a sorted-by-length-desc array so longer values redact first
@@ -31,15 +37,24 @@ function loadEnvLiterals() {
   const lines = fs.readFileSync(ENV_FILE, 'utf-8').split('\n');
   const values = [];
   for (const line of lines) {
-    const m = line.match(/^[A-Z_][A-Z0-9_]*=(.+)$/);
+    const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.+)$/);
     if (!m) continue;
-    let v = m[1].trim();
+    const key = m[1];
+    let v = m[2].trim();
     // Strip surrounding quotes
     if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
       v = v.slice(1, -1);
     }
     // Skip empty or trivially short values (would over-redact)
     if (v.length < 8) continue;
+    // Skip path-like values — they aren't secrets
+    if (v.startsWith('/') || v.startsWith('~/') || v.startsWith('./')) continue;
+    // Skip URL values
+    if (/^https?:\/\//.test(v)) continue;
+    // Skip pure integers
+    if (/^\d+$/.test(v)) continue;
+    // Only treat as secret if the key name suggests one
+    if (!SECRET_KEY_RE.test(key)) continue;
     values.push(v);
   }
   return values.sort((a, b) => b.length - a.length);
