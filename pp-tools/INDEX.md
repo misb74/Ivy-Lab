@@ -331,3 +331,91 @@ Errors per source don't kill the whole scan — they land in `sources[].error` a
 - **Use jobposting-schema:** non-ATS career sites (custom CMS, government, smaller employers) where JSON-LD is server-side.
 - **Use `agent-ats-scanner` MCP:** when running inside the gateway/production Ivy where Bash isn't available, OR when the auto-detect-which-ATS feature matters (it scans common patterns automatically; ats-surface requires you to say `<ats>:<slug>` explicitly).
 - **Workday is NOT covered here** by design — it has a different access reality (CXS endpoints, ToS-restricted scraping). Will live as `workday-cxs-pp-cli` if/when that scope is acceptable.
+
+---
+
+## `reddit-pp-cli` — Reddit research CLI for HR practitioner sentiment
+
+**Binary:** `/Users/moraybrown/.local/bin/reddit-pp-cli` (symlink → `pp-tools/reddit-pp-cli/cli.mjs`).
+**Version:** 0.1.0.
+**What it does:** OAuth-authenticated Reddit search + thread fetch, normalized JSON out, pipe to `jq`. Killer use case for Ivy: practitioner sentiment on HR vendors, recruiting tools, role demands ("what do recruiters actually say about Eightfold").
+
+**Auth (required):** `REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET` in env or `./.env`. Reddit closed all unauthenticated `.json` endpoints in 2023 — OAuth is mandatory now. Uses the `client_credentials` grant (no user account login required, no OAuth callback dance).
+
+**One-time setup:**
+1. Go to <https://www.reddit.com/prefs/apps> → "create another app".
+2. Type: `script`. Redirect URL: `http://localhost` (any value works for client_credentials).
+3. Copy the `client_id` (the string under the app name, NOT the description) and `client_secret`.
+4. Add to `.env`:
+   ```
+   REDDIT_CLIENT_ID=...
+   REDDIT_CLIENT_SECRET=...
+   REDDIT_USERNAME=your_reddit_username   # optional; Reddit's UA policy expects an account name
+   ```
+5. Verify: `reddit-pp-cli doctor`.
+
+Tokens are cached at `~/.cache/reddit-pp-cli/token.json` (24h TTL) so subsequent invocations skip the token refresh round-trip.
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `search <query>` | Search posts. Use `--sub <name>` to scope to a subreddit. `--sort relevance\|hot\|new\|top`, `--time hour\|day\|week\|month\|year\|all`. |
+| `subreddit <name>` | Browse a subreddit. `--sort hot\|new\|top\|rising`. |
+| `thread <id>` | Fetch one thread's post + comments. Accepts post ID, `t3_id`, or full URL. `--comments <n>` (max 200). |
+| `doctor` | Verify creds + sample API call. |
+
+### Common invocation patterns
+
+```bash
+# Vendor sentiment scan
+reddit-pp-cli search "eightfold ai" --sub recruiting --limit 30 \
+  | jq -r '.posts[] | "\(.score)↑ \(.num_comments)💬 — \(.title)"'
+
+# What's hot in r/recruitinghell this week
+reddit-pp-cli subreddit recruitinghell --sort top --time week \
+  | jq '.posts[0:5] | map({title, score, permalink})'
+
+# Drill into a single thread for sentiment
+reddit-pp-cli thread 1abc23 --comments 50 \
+  | jq -r '.comments[] | "[\(.score)] \(.author): \(.body | gsub("\\n"; " ") | .[0:160])"'
+
+# Cross-source: Reddit chatter + ATS hiring on the same vendor
+reddit-pp-cli search "workday recruiter" --limit 10 | jq '.posts | length'
+ats-surface-pp-cli scan smartrecruiters:Workday --limit 10 | jq '.jobs | length'
+```
+
+### Output shape (search/subreddit)
+
+```json
+{
+  "query": "eightfold ai",
+  "subreddit": "recruiting",
+  "count": 23,
+  "after": "t3_xyz",
+  "posts": [
+    {
+      "id": "abc123",
+      "fullname": "t3_abc123",
+      "title": "...",
+      "author": "...",
+      "subreddit": "recruiting",
+      "score": 47,
+      "upvote_ratio": 0.93,
+      "num_comments": 18,
+      "created_iso": "2026-04-15T10:23:00.000Z",
+      "url": "...",
+      "permalink": "https://www.reddit.com/r/...",
+      "is_self": true,
+      "selftext": "...",
+      "flair": "Discussion"
+    }
+  ]
+}
+```
+
+### When to use this vs other tools
+
+- **Use reddit-pp-cli:** practitioner sentiment, vendor reputation chatter, role-demand signals from working recruiters/HR pros, thread drill-downs.
+- **Use `data-research-index` (MCP):** academic/institutional findings (HBS, Stanford DEL, etc.) — that's authoritative literature, this is folk wisdom.
+- **Combine:** Reddit for "what people are complaining about" → cross-reference with ATS hiring deltas via `ats-surface-pp-cli` to see if the chatter shows up in real hiring patterns.

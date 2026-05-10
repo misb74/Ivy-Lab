@@ -69,6 +69,30 @@
       "doctor"
     ]
   },
+  "reddit": {
+    "binary": "reddit-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/reddit-pp-cli",
+    "source_path": "pp-tools/reddit-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "library-cli",
+    "legal_class": "public_api",
+    "domain": "social-sentiment",
+    "lab_only": false,
+    "sources": [
+      "Reddit OAuth API — oauth.reddit.com (client_credentials grant)"
+    ],
+    "auth_required": ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"],
+    "auth_optional": ["REDDIT_USERNAME"],
+    "setup_note": "One-time: https://www.reddit.com/prefs/apps → create 'script' type app → copy client_id + client_secret to .env. Reddit closed all unauthenticated .json endpoints in 2023; OAuth is mandatory now.",
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "search",
+      "subreddit",
+      "thread",
+      "doctor"
+    ],
+    "token_cache": "~/.cache/reddit-pp-cli/token.json (24h TTL)"
+  },
   "ats-surface": {
     "binary": "ats-surface-pp-cli",
     "binary_absolute": "/Users/moraybrown/.local/bin/ats-surface-pp-cli",
