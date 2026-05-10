@@ -242,3 +242,92 @@ Errors come back as `{"error": true, "command": "...", "message": "..."}` and ex
 - **Use jobposting-schema:** any non-ATS career page (custom CMS, government, smaller employers), or as a fallback when you don't know what platform a careers site uses.
 - **Use ats-surface (TBD):** Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee, Gem — these have structured public APIs that return more data, faster, more reliably.
 - **Combine:** `discover` to find the sitemap, then `sitemap` to bulk-extract, then pipe to `jq` for skill / location / salary analysis.
+
+---
+
+## `ats-surface-pp-cli` — unified job-board API CLI across 6 ATSes
+
+**Binary:** `/Users/moraybrown/.local/bin/ats-surface-pp-cli` (symlink → `pp-tools/ats-surface-pp-cli/cli.mjs`).
+**Version:** 0.1.0.
+**What it does:** one CLI, one normalized shape, six public job-board APIs fanned out in parallel. Greenhouse + Lever + Ashby + SmartRecruiters + Workable + Recruitee. No auth, no API key — every endpoint here is the vendor's documented public API.
+
+**Why this exists:** each ATS publishes a different endpoint, different field names, different response shape. Comparing AI/ML hiring across Anthropic (Greenhouse), Ashby (Ashby), and Visa (SmartRecruiters) used to mean three different fetches, three different parsers. Now: one `scan greenhouse:anthropic ashby:Ashby smartrecruiters:Visa` call, one unified JSON output, pipe to `jq`.
+
+**Complement to:** `jobposting-schema-pp-cli` (covers non-ATS career sites where JSON-LD is server-rendered).
+
+### Supported ATSes
+
+| ATS | Slug = | Doc |
+|---|---|---|
+| `greenhouse` | board token (e.g. `anthropic`) | [Job Board API](https://developers.greenhouse.io/job-board.html) |
+| `lever` | company name (e.g. `attentive`) | [Postings API](https://github.com/lever/postings-api) |
+| `ashby` | job-board name (e.g. `Ashby`) | [Public Job Board API](https://developers.ashbyhq.com/reference/public-job-board-api) |
+| `smartrecruiters` | company identifier (e.g. `Visa`) | [Posting API](https://developers.smartrecruiters.com/docs/posting-api-overview) |
+| `workable` | account name | [Widget API](https://workable.readme.io/docs/jobs) |
+| `recruitee` | recruitee subdomain (e.g. `acme` for `acme.recruitee.com`) | [Offers API](https://docs.recruitee.com/reference/offers) |
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `scan <ats>:<slug> [<ats>:<slug> ...]` | Fan out across one or more `<ats>:<slug>` pairs in parallel. Returns unified `jobs[]` array. |
+| `list-ats` | List supported ATSes and their docs URLs. |
+| `doctor` | Probe one known-good slug per ATS to verify each adapter parses. |
+
+### Common invocation patterns
+
+```bash
+# Single ATS
+ats-surface-pp-cli scan greenhouse:anthropic | jq '.jobs | length'
+
+# Cross-ATS competitive scan
+ats-surface-pp-cli scan greenhouse:anthropic ashby:openai smartrecruiters:Visa --limit 50
+
+# AI/ML breakdown by department
+ats-surface-pp-cli scan greenhouse:anthropic \
+  | jq -r '.jobs[] | select(.title | test("(AI|ML|model|research)"; "i")) | .department' \
+  | sort | uniq -c | sort -rn
+
+# With descriptions (much larger payload)
+ats-surface-pp-cli scan greenhouse:anthropic --full \
+  | jq '[.jobs[] | select(.description | test("oncology"; "i"))]'
+
+# Compose with google-places-pp-cli — find restaurants near offices
+ats-surface-pp-cli scan greenhouse:anthropic \
+  | jq -r '[.jobs[].location] | unique | .[]' \
+  | head -5 \
+  | while read loc; do google-places-pp-cli search "lunch near $loc" --limit 3 --agent; done
+```
+
+### Output shape (normalized)
+
+Every ATS returns the same per-job shape:
+
+```json
+{
+  "ats": "greenhouse",
+  "ats_slug": "anthropic",
+  "id": "5161980008",
+  "title": "Account Executive, Beneficial Deployments",
+  "company": "Anthropic",
+  "location": "London, UK",
+  "remote": false,
+  "department": "Sales",
+  "team": null,
+  "url": "https://job-boards.greenhouse.io/anthropic/jobs/5161980008",
+  "datePosted": "2026-05-09T...",
+  "employmentType": null,
+  "description": null
+}
+```
+
+Top-level response includes a `sources[]` array showing per-ATS status, jobs_found, and ms timing — useful for "which ATS was slow / errored" debugging.
+
+Errors per source don't kill the whole scan — they land in `sources[].error` and the rest of the sources still return.
+
+### When to use this vs other tools
+
+- **Use ats-surface:** any company on a known ATS — gets you structured, paginated, normalized job data.
+- **Use jobposting-schema:** non-ATS career sites (custom CMS, government, smaller employers) where JSON-LD is server-side.
+- **Use `agent-ats-scanner` MCP:** when running inside the gateway/production Ivy where Bash isn't available, OR when the auto-detect-which-ATS feature matters (it scans common patterns automatically; ats-surface requires you to say `<ats>:<slug>` explicitly).
+- **Workday is NOT covered here** by design — it has a different access reality (CXS endpoints, ToS-restricted scraping). Will live as `workday-cxs-pp-cli` if/when that scope is acceptable.

@@ -69,6 +69,32 @@
       "doctor"
     ]
   },
+  "ats-surface": {
+    "binary": "ats-surface-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/ats-surface-pp-cli",
+    "source_path": "pp-tools/ats-surface-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "library-cli",
+    "legal_class": "public_api",
+    "domain": "hiring-intel",
+    "lab_only": false,
+    "sources": [
+      "Greenhouse Job Board API",
+      "Lever Postings API (v0)",
+      "Ashby Public Job Board API",
+      "SmartRecruiters Posting API",
+      "Workable widget API",
+      "Recruitee Careers Site API"
+    ],
+    "auth_required": [],
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "scan",
+      "list-ats",
+      "doctor"
+    ],
+    "complementary_to": "jobposting-schema (for non-ATS career sites)"
+  },
   "jobposting-schema": {
     "binary": "jobposting-schema-pp-cli",
     "binary_absolute": "/Users/moraybrown/.local/bin/jobposting-schema-pp-cli",
