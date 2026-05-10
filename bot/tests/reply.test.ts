@@ -26,6 +26,25 @@ describe('reply', () => {
     expect(ctx.replyWithDocument).not.toHaveBeenCalled();
   });
 
+  it('falls back to plain text when Markdown parse fails (400 entity error)', async () => {
+    const reply = vi.fn()
+      .mockRejectedValueOnce({ error_code: 400, description: "Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 26" })
+      .mockResolvedValueOnce(undefined);
+    const ctx = { reply, replyWithDocument: vi.fn(), chat: { id: 123 } };
+    await sendReply(ctx as any, 'has **unclosed bold', { topic: 'oops', responsesDir: tmpDir });
+    expect(reply).toHaveBeenCalledTimes(2);
+    expect(reply.mock.calls[0]).toEqual(['has **unclosed bold', expect.objectContaining({ parse_mode: 'Markdown' })]);
+    expect(reply.mock.calls[1]).toEqual(['has **unclosed bold']);
+  });
+
+  it('rethrows non-Markdown errors', async () => {
+    const reply = vi.fn().mockRejectedValueOnce(new Error('network down'));
+    const ctx = { reply, replyWithDocument: vi.fn(), chat: { id: 123 } };
+    await expect(
+      sendReply(ctx as any, 'hello', { topic: 'x', responsesDir: tmpDir }),
+    ).rejects.toThrow('network down');
+  });
+
   it('sends document when over threshold', async () => {
     const long = 'x'.repeat(4000);
     const ctx = { reply: vi.fn(), replyWithDocument: vi.fn(), chat: { id: 123 } };

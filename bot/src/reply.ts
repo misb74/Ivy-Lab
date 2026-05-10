@@ -38,13 +38,28 @@ function cleanupOldResponses(dir: string): void {
   }
 }
 
+async function sendTextWithFallback(ctx: Context, text: string): Promise<void> {
+  // Try Markdown first; if Telegram's strict parser rejects (400 can't-parse-entities),
+  // fall back to plain text so the message still gets through.
+  try {
+    await ctx.reply(text, { parse_mode: 'Markdown' });
+  } catch (err: any) {
+    const desc = String(err?.description || err?.message || '');
+    if (err?.error_code === 400 && /can't parse entities|can't find end of the entity/i.test(desc)) {
+      await ctx.reply(text);
+      return;
+    }
+    throw err;
+  }
+}
+
 export async function sendReply(
   ctx: Context,
   text: string,
   opts: SendReplyOptions
 ): Promise<void> {
   if (text.length <= THRESHOLD) {
-    await ctx.reply(text, { parse_mode: 'Markdown' });
+    await sendTextWithFallback(ctx, text);
     return;
   }
   // Long message → save to .md, send as document
