@@ -31,6 +31,15 @@ The model writes the pipeline; Bash runs it; only the final shape lands in your 
 - Lab's `supabase/migrations/` is a read-only mirror — do NOT add files there.
 - After Ivy adds a migration: `rsync -a /Users/moraybrown/Desktop/Ivy/supabase/migrations/ ./supabase/migrations/` from Lab root to refresh the mirror.
 
+## Design-system mirror
+
+The HTML executive report skill (`.claude/skills/output/SKILL.md`) requires the **Ivy v4 design system** — full CSS/JS at `gateway/src/v4-html/`. Lab is gateway-less by design, but the design system itself is needed so the bot and terminal Claude Code can produce on-brand HTML reports.
+
+- `gateway/` is a **read-only mirror** of `/Users/moraybrown/Desktop/Ivy/gateway/src/v4-html/`. Same pattern as `supabase/migrations/`.
+- `gateway/` is gitignored — do not commit changes here.
+- After Ivy updates the design system: run `scripts/sync-design-system.sh` from Lab root to refresh.
+- The reference report (`outputs/deep-research/agent-factory-work-transformation.html`) is also mirrored by the same script.
+
 ## Bash safety
 
 - `.claude/settings.json` deny-lists raw `curl`/`wget` deliberately. Use a PP CLI instead.

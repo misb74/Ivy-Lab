@@ -20,6 +20,12 @@ pp-mirrors/
 outputs/
 .outputs/
 
+# Read-only mirror from production Ivy repo — refreshed via scripts/sync-design-system.sh
+gateway/
+
+# Playwright MCP debug artifacts (screenshots, console logs, page snapshots)
+.playwright-mcp/
+
 # Generated binary outputs (reports, presentations, exports)
 *.pptx
 *.docx
