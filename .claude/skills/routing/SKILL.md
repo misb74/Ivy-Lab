@@ -98,7 +98,7 @@ Rules:
 - Compliance/bias/audit → hr-compliance tools
 - Automation/transformation → hr-automation tools (use WORKBank + AEI for empirical grounding)
 - **"What AI agent skills/tools exist for X" / AI skill ecosystem / agent capabilities** → data-skills-intelligence tools (249 community skills, 19 categories, FTS5 search). ONLY use when the user explicitly asks about AI agent capabilities, community AI skills, or the agent skills database (e.g., "what agent skills exist for healthcare", "show me AI tools for data analysis"). NEVER use data-skills-intelligence for general questions about a workforce skill like "tell me about X", "talk about X", "what is X" — those ALWAYS go to `skill_deep_dive` artifact card
-- Career site browsing/scanning → careers_visual_scanner (Playwright), then agent-browser tools for deeper exploration, Adzuna only as fallback
+- Career site browsing/scanning → `ats_scan_company_jobs` (agent-ats-scanner) FIRST — free, hits public ATS JSON APIs (Greenhouse, Lever, Workday, Ashby, Recruitee, etc.) and covers most companies. Fall back to `careers_visual_scanner` ONLY when the company isn't on a recognised ATS (paid: Haiku vision calls bill to ANTHROPIC_API_KEY). Then agent-browser tools for deeper exploration, Adzuna as last resort.
 - Recruiting/competitor intel (structured data, salary, volume) → hr-recruitment tools (Adzuna for job search and salary data)
 - Document generation → output skill (routes to doc-generator tools unless user explicitly asks for a direct tool)
 - Remember/recall/store information → agent-memory tools
@@ -167,11 +167,12 @@ Proactively use memory to enhance every interaction:
 
 ## Competitive Intelligence
 
-### Career Site Analysis (visual scanning)
+### Career Site Analysis
 When the user wants to browse, scan, or analyze a company's careers page:
-1. `careers_visual_scanner` — Playwright-based tool that navigates the actual career site, takes screenshots, and extracts job listings visually
-2. `browse_and_extract` / `multi_step_browse` / `screenshot_and_analyze` — for deeper exploration, pagination, or following links on the career site
-3. Adzuna (`search_competitor_jobs`) — only as a fallback if the career site is inaccessible or returns no results
+1. **`ats_scan_company_jobs` (agent-ats-scanner) — DEFAULT.** Hits public ATS JSON endpoints (Greenhouse, Lever, Workday, Ashby, Recruitee, etc.). Free, fast, structured. Covers the large majority of companies that use a recognised ATS. Try this first.
+2. `careers_visual_scanner` — Playwright + Haiku-vision fallback. Use ONLY when ATS scanner returns nothing because the company runs a bespoke / non-ATS careers page. **Cost note:** this tool makes its own Anthropic API calls billed to `ANTHROPIC_API_KEY` (NOT covered by Claude Code's Max plan), so prefer the ATS path whenever possible.
+3. `browse_and_extract` / `multi_step_browse` / `screenshot_and_analyze` — for deeper exploration, pagination, or following links once jobs are located.
+4. Adzuna (`search_competitor_jobs`) — last-resort fallback if the careers site itself is inaccessible.
 
 ### Competitor Hiring Intelligence (market data)
 When the user wants structured hiring volume, salary benchmarks, or market-level competitor data:
@@ -183,8 +184,8 @@ When the user wants structured hiring volume, salary benchmarks, or market-level
 ### Choosing the right approach
 | User intent | Primary tool | Fallback |
 |---|---|---|
-| "Analyze their careers page" | `careers_visual_scanner` | `browse_and_extract` |
-| "What jobs are on their website" | `careers_visual_scanner` | `multi_step_browse` |
+| "Analyze their careers page" | `ats_scan_company_jobs` (free) | `careers_visual_scanner` (paid — only if non-ATS site) |
+| "What jobs are on their website" | `ats_scan_company_jobs` (free) | `careers_visual_scanner` (paid — only if non-ATS site) |
 | "How many jobs are they hiring for" | `search_competitor_jobs` (Adzuna) | `competitor_hiring` |
 | "What salaries are they offering" | `adzuna_salary_data` | `compensation_benchmark` |
 | "Compare competitor hiring trends" | `competitor_hiring` | `search_competitor_jobs` |

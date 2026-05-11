@@ -508,3 +508,130 @@ workday-cxs-pp-cli job "https://astrazeneca.wd3.myworkdayjobs.com/Careers/job/Ca
 - **Use workday-cxs:** any Workday-hosted enterprise that's NOT on a Greenhouse/Lever/Ashby/SmartRecruiters/Workable/Recruitee surface (which is most large enterprises — pharma, finance, retail, traditional tech).
 - **Use ats-surface:** anything on the structured-public-API ATSes — that's the safe-to-ship path.
 - **Use jobposting-schema:** custom CMS career sites with server-rendered JSON-LD.
+- **Use careers-sniffer:** any URL not covered by ats-surface/workday-cxs/jobposting-schema — see next entry.
+
+---
+
+## `careers-sniffer-pp-cli` — universal dispatcher for everything else
+
+**Binary:** `/Users/moraybrown/.local/bin/careers-sniffer-pp-cli` (symlink → `pp-tools/careers-sniffer-pp-cli/cli.mjs`).
+**Version:** 0.1.0.
+**What it does:** the catch-all for careers URLs not covered by `ats-surface-pp-cli` (Greenhouse/Lever/Ashby/SmartRecruiters/Workable/Recruitee) or `workday-cxs-pp-cli` (Workday tenants). Dispatches per URL: detects the platform, runs the cheapest extraction path that works, falls back to Playwright + JSON-LD for SPAs.
+
+**Strategy chain (per URL):**
+1. **URL pattern detection** → classify platform.
+2. **Direct API** for known platforms with a clean public REST endpoint (Oracle HCM Cloud).
+3. **HTML JSON-LD** for known platforms that ship `JobPosting` server-side (SuccessFactors, iCIMS).
+4. **Playwright JSON-LD fallback** — load the URL in headless Chromium, wait for hydration, extract any `<script type="application/ld+json">` JobPosting blocks. Generic; works on any SPA that publishes structured data for Google for Jobs.
+
+If the cheap path returns 0 jobs, the dispatcher upgrades to Playwright automatically (unless `--no-playwright` is set).
+
+**Known platforms (v0.2 — added 5 bespoke F500-giant adapters):**
+
+| Platform | Strategy | Notes |
+|---|---|---|
+| `oracle-hcm` | direct API (`recruitingCEJobRequisitions`) | Detects `*.fa.{region}.oraclecloud.com/hcmUI/CandidateExperience/`. Pulls site slug from URL. |
+| `successfactors` | HTML JSON-LD | Detects `*.successfactors.{com\|eu\|cn}`, `*.sapsf.{com\|eu}`, and `?company=` / `/careersection/` URL shapes. |
+| `icims` | HTML JSON-LD | Detects `*.icims.com`. White-labeled iCIMS subdomains won't match — needs the raw iCIMS host. |
+| `amazon` | direct API (`amazon.jobs/search.json`) | Public, no auth, paginated 100/page. Verified: 30k+ open roles. |
+| `microsoft` | direct API (`apply.careers.microsoft.com/api/pcsx`) | Public, no auth, 10/page. The documented `gcsservices.careers.microsoft.com` endpoint is stale — Microsoft migrated to `apply.careers.microsoft.com` (clean cert, no SNI workaround). |
+| `google` | WIZ preload (Playwright) | No public JSON XHR. Job data is server-injected into HTML as `AF_initDataCallback({key:'ds:1', data:[...]})`. Playwright required; 20/page. |
+| `meta` | GraphQL (Playwright) | Bespoke Relay/GraphQL site, no public ATS. Adapter does Playwright warm-up + page-context POST to `/graphql` (op=`CareersJobSearchResultsDataQuery`, `doc_id=29615178951461218`). `doc_id` is pinned from observed traffic and may rotate. |
+| `apple` | CSRF-protected direct API | The "anti-bot" was overstated — Apple exposes `POST /api/v1/search` after a `GET /api/v1/CSRFToken` dance for token + session cookies. 20/page. No Playwright needed. |
+| `unknown` (fallback) | Playwright JSON-LD | Catches anything else that hydrates client-side AND publishes Google-for-Jobs JSON-LD. |
+
+**Verified end-to-end** (2026-05-11, parallel scan, UK queries, `--limit 5 --concurrency 5`):
+
+| Platform | Strategy | Latency | Jobs |
+|---|---|---:|---:|
+| Amazon | direct API | 445 ms | 5 |
+| Apple | direct API + CSRF | 1041 ms | 5 |
+| Microsoft | direct API | 1143 ms | 5 |
+| Meta | GraphQL via Playwright | 3090 ms | 16 (Meta returns full result set in one call; `--limit` ignored client-side) |
+| Google | WIZ preload via Playwright | 3519 ms | 5 |
+| **Total** | — | **3.5 s wall** | **36 jobs** |
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `extract <url>` | Single URL → normalized jobs array. |
+| `scan <url> [<url>...]` | Fan out across multiple URLs in parallel (default concurrency = N URLs, max 6). |
+| `detect <url>` | Classify the platform without fetching jobs. Cheap, no network call beyond URL parse. |
+| `list-platforms` | Show all known platforms and detection patterns. |
+| `doctor` | Health probe — verifies detection logic + Playwright availability. |
+
+### Common invocation patterns
+
+```bash
+# Classify a URL (no fetch)
+careers-sniffer-pp-cli detect "https://jobs.careers.microsoft.com/global/en/job/123"
+
+# Single extract with all strategies enabled
+careers-sniffer-pp-cli extract "https://www.usajobs.gov/job/856555200" --full
+
+# Disable Playwright (HTML-only, fast)
+careers-sniffer-pp-cli extract "$URL" --no-playwright
+
+# Fan out across many URLs
+careers-sniffer-pp-cli scan url-a url-b url-c --concurrency 4 \
+  | jq '[.results[] | {url, platform, strategy_chain, jobs_found}]'
+
+# Compose: get a Microsoft UK job ID via Playwright, then extract
+# (Microsoft search page itself has no JSON-LD; per-company adapter is a v0.2 path)
+```
+
+### Output shape (extract)
+
+```json
+{
+  "queried_at": "2026-05-11T...",
+  "url": "https://www.usajobs.gov/job/856555200",
+  "platform": "unknown",
+  "strategy_chain": [
+    { "strategy": "html-jsonld", "ms": 413, "jobs_found": 1 }
+  ],
+  "ms_total": 413,
+  "jobs_found": 1,
+  "jobs": [
+    {
+      "platform": "unknown",
+      "source_url": "https://www.usajobs.gov/job/856555200",
+      "id": null,
+      "title": "Registered Nurse - PACT",
+      "company": "Kansas City VA Medical Center",
+      "location": "Kansas City, MO",
+      "remote": false,
+      "department": null,
+      "team": null,
+      "url": "https://www.usajobs.gov/job/856555200",
+      "datePosted": "02/05/2026",
+      "validThrough": "2026-02-13",
+      "employmentType": "OTHER",
+      "salary": { "currency": "USD", "value": 68432, "unit": "YEAR" },
+      "description": null
+    }
+  ]
+}
+```
+
+### Empirical reality (v0.1 testing)
+
+A genuine finding from validation: **not every SPA careers site publishes JSON-LD JobPosting**, even after hydration.
+
+- ✅ **Works:** USAJobs (server-rendered HTML, JSON-LD ships in initial response). The dispatcher picks the cheap HTML path and finishes in ~500ms.
+- ⚠️ **Doesn't work yet:** Microsoft careers (`jobs.careers.microsoft.com`), Apple careers (`jobs.apple.com`), modern Greenhouse `job-boards.greenhouse.io` SPA — these hydrate client-side BUT do not inject JSON-LD JobPosting into the DOM. They power their job-detail UI from a private API and rely on indexing by other means (Google Talent API, ATS aggregator partnerships).
+- The CLI correctly attempts both strategies on these and reports `jobs_found: 0` with a clean strategy_chain showing what was tried — that's accurate behavior, not a bug.
+
+**v0.2 path for the holdouts:** add per-company direct-API adapters following the Oracle pattern. Microsoft has a private endpoint at `gcsservices.careers.microsoft.com/search/api/v1/search` (Azure Edge cert SNI quirk requires a browser-equivalent client). One adapter per F500 holdout = bounded scope.
+
+### When to use this vs other tools
+
+| User intent | Tool |
+|---|---|
+| URL is on Greenhouse/Lever/Ashby/SmartRecruiters/Workable/Recruitee | `ats-surface-pp-cli` |
+| URL is on Workday (`*.myworkdayjobs.com`) | `workday-cxs-pp-cli` |
+| URL is server-rendered with JSON-LD (USAJobs, gov, smaller employers) | `jobposting-schema-pp-cli` OR `careers-sniffer-pp-cli` (both work; sniffer is faster to remember) |
+| URL is on Oracle / SuccessFactors / iCIMS | `careers-sniffer-pp-cli` |
+| Bespoke / unknown / SPA — best-effort attempt | `careers-sniffer-pp-cli` (Playwright fallback) |
+| Bespoke giant where JSON-LD is absent (Microsoft/Apple) | Stub here for now, add bespoke adapter in v0.2; for "just give me the jobs" → Adzuna |
