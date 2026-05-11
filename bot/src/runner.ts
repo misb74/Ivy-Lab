@@ -43,6 +43,9 @@ export async function runQuery(opts: RunnerOptions): Promise<void> {
       prompt,
       options: {
         cwd,
+        // Telegram has no UI for permission prompts; rely on the auth allowlist +
+        // preflight/audit hooks for safety instead of per-call grants.
+        permissionMode: 'bypassPermissions',
         ...(resumeId ? { resume: resumeId } : {}),
       },
     });
