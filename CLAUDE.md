@@ -61,6 +61,27 @@ The HTML executive report skill (`.claude/skills/output/SKILL.md`) requires the 
 - `workforce-sim` — simulate workforce redesign with Build/Borrow/Buy/Bot framework.
 - `agent-builder` — turn a simulation into an actual agent spec.
 
+## Consulting stack (2026-05-16)
+
+For consulting-workflow tasks — client PDFs, deliverable drafts, engagement tracking, demo recording — Lab carries a curated set of Hermes-Agent skills (MIT) and one Vercel-Labs wrapper:
+
+- **Document intake** → `ocr-and-documents` skill. pymupdf default in `~/.ivy-lab/venv-ocr`; marker-pdf installable on first OCR/equation need.
+- **Document polish (round 1: voice)** → `humanizer` skill. Final-pass strip of AI-isms from long-form prose. Cross-referenced from `ivy-persona` rule #12.
+- **Document polish (round 2: last-mile PDF edits)** → `nano-pdf` skill. Installed at `~/.ivy-lab/venv-nano-pdf` (Python 3.12, uv-managed). Needs `GEMINI_API_KEY` / `GOOGLE_API_KEY`.
+- **Deliverable variants** → `sketch` skill (2-3 HTML shapes for proposal-stage decisions).
+- **Client-brand-matching** → `popular-web-designs` skill (54 reference design systems incl. Stripe, Linear, Apple, Vercel).
+- **Workshop diagrams (provisional)** → `excalidraw` skill (hand-drawn JSON, droppable onto excalidraw.com). Use Mermaid for polished final-deliverable diagrams.
+- **Engagement state** → `linear` (preferred; stdlib Python helper bypasses Lab's curl deny-list) OR `airtable` skill. Decision tracked in `~/.ivy-lab/consulting-stack.md`.
+- **Demo videos** → `webreel-pp-cli` (Lab wrapper around Vercel-Labs `webreel`, Apache-2.0). Scripted browser steps → deterministic MP4. Different category from Loom (live + face/voice).
+
+For the bigger structural bets — engagement *learning* via a knowledge-base agent (Vercel `knowledge-agent-template`) and visual workflow proposals via canvas UI (Vercel `tersa`) — see the evaluation specs:
+- `docs/superpowers/specs/2026-05-16-knowledge-agent-evaluation.md`
+- `docs/superpowers/specs/2026-05-16-tersa-evaluation.md`
+
+Both are cloned to `~/code/scratch/` and gated on manual OAuth/credentials.
+
+Implementation plan: `docs/superpowers/plans/2026-05-16-consulting-stack-adoption.md`.
+
 ## Imports
 
 @.claude/skills/routing/SKILL.md
