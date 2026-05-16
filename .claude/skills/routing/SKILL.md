@@ -123,6 +123,8 @@ Rules:
 - Network/relationship graph images → doc-generator (`render_graph_png`) — force-directed graph PNG from nodes + edges
 - **Any output request** (report, export, presentation, document, spreadsheet, clone, write-up, embed code) → output skill (unified decision tree — handles format selection, routing to correct MCP tools, and sub-skill loading)
 - **Bespoke HTML pages / UI mockups / custom single-page apps** → Generate the full HTML yourself and wrap it in `<artifact>` tags. The gateway automatically writes it to disk and creates a download card. The frontend also renders it live in an iframe so the user sees the actual UI inline. Do NOT use `create_visualization` for custom layouts — it only supports generic templates. Do NOT use `type: "code"` with `language: "html"` — just put the raw HTML directly inside `<artifact></artifact>` tags.
+- **Proposal-stage "what shape should this deliverable take" decisions / consulting deliverable variants** → `sketch` skill. Generates 2-3 throwaway HTML variants side-by-side so the client can pick a shape before you build the final. Use early in an engagement when the deliverable form isn't fixed.
+- **Client-brand-matching for HTML deliverables** → `popular-web-designs` skill (54 reference systems incl. Stripe, Linear, Apple, Vercel, Airbnb, Figma, Coinbase). Pair with `sketch` to produce brand-matched variants. Use the Ivy v4 design system (default in `output` skill) for Ivy-branded reports; switch to popular-web-designs only when the deliverable explicitly belongs to a specific client.
 - Scheduled/recurring tasks → Gateway scheduler API (POST /api/schedules)
 - Multi-agent orchestration/swarm/parallel tasks → agent-swarm tools
 - Market monitoring/price tracking/alerts → agent-monitor tools
