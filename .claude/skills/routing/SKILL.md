@@ -101,6 +101,7 @@ Rules:
 - Career site browsing/scanning → `ats_scan_company_jobs` (agent-ats-scanner) FIRST — free, hits public ATS JSON APIs (Greenhouse, Lever, Workday, Ashby, Recruitee, etc.) and covers most companies. Fall back to `careers_visual_scanner` ONLY when the company isn't on a recognised ATS (paid: Haiku vision calls bill to ANTHROPIC_API_KEY). Then agent-browser tools for deeper exploration, Adzuna as last resort.
 - Recruiting/competitor intel (structured data, salary, volume) → hr-recruitment tools (Adzuna for job search and salary data)
 - Document generation → output skill (routes to doc-generator tools unless user explicitly asks for a direct tool)
+- **PDF intake / scanned doc OCR / messy real-world client PDFs** → `ocr-and-documents` skill (pymupdf for structured PDFs, marker-pdf for scans/equations/complex layouts). Output: clean markdown preserving tables and headings.
 - Remember/recall/store information → agent-memory tools
 - Browse websites/scrape/fill forms/check anything online → agent-browser tools (NEVER enter passwords or make payments). This includes ANY real-world web task: checking restaurant availability, looking up store hours, finding prices, reading reviews, filling out booking forms, etc. Ivy is a general-purpose agent — if the user asks her to do something on the web, USE THE BROWSER.
 - Research questions/deep analysis → agent-research tools
