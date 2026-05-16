@@ -118,6 +118,7 @@ Rules:
 - Audio/video transcription → agent-transcription tools (whisper.cpp offline, supports audio + video)
 - Interactive dashboards / charts / visualizations → doc-generator (`create_visualization`) — supports flexible `chart_type` (bar, line, dot, area, cell, text, rule, heatmap) with custom data channels, or legacy `dashboard_type` for backward compat
 - Diagrams / flowcharts / org charts / process maps → doc-generator (`render_mermaid`) — any Mermaid diagram type to PNG
+- **Provisional / workshop-style diagrams (hand-drawn aesthetic, invites client feedback)** → `excalidraw` skill. Produces `.excalidraw` JSON files droppable onto excalidraw.com. Use for scoping sessions and early operating-model sketches. Switch back to Mermaid for polished final-deliverable diagrams.
 - Charts as PNG images (for embedding in PPTX/DOCX) → doc-generator (`render_chart_png`) — same chart spec as `create_visualization` but outputs PNG
 - Network/relationship graph images → doc-generator (`render_graph_png`) — force-directed graph PNG from nodes + edges
 - **Any output request** (report, export, presentation, document, spreadsheet, clone, write-up, embed code) → output skill (unified decision tree — handles format selection, routing to correct MCP tools, and sub-skill loading)
