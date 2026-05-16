@@ -102,6 +102,7 @@ Rules:
 - Recruiting/competitor intel (structured data, salary, volume) → hr-recruitment tools (Adzuna for job search and salary data)
 - Document generation → output skill (routes to doc-generator tools unless user explicitly asks for a direct tool)
 - **PDF intake / scanned doc OCR / messy real-world client PDFs** → `ocr-and-documents` skill (pymupdf for structured PDFs, marker-pdf for scans/equations/complex layouts). Output: clean markdown preserving tables and headings.
+- **Last-mile PDF edits / typo fixes / title tweaks on rendered PDFs** → `nano-pdf` skill. Natural-language `page N "instruction"` pairs edit the rendered PDF in place without re-rendering the source. Uses Gemini "Nano Banana" — needs `GEMINI_API_KEY`/`GOOGLE_API_KEY`.
 - Remember/recall/store information → agent-memory tools
 - Browse websites/scrape/fill forms/check anything online → agent-browser tools (NEVER enter passwords or make payments). This includes ANY real-world web task: checking restaurant availability, looking up store hours, finding prices, reading reviews, filling out booking forms, etc. Ivy is a general-purpose agent — if the user asks her to do something on the web, USE THE BROWSER.
 - Research questions/deep analysis → agent-research tools
