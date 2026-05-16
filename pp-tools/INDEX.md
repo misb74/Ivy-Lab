@@ -635,3 +635,55 @@ A genuine finding from validation: **not every SPA careers site publishes JSON-L
 | URL is on Oracle / SuccessFactors / iCIMS | `careers-sniffer-pp-cli` |
 | Bespoke / unknown / SPA — best-effort attempt | `careers-sniffer-pp-cli` (Playwright fallback) |
 | Bespoke giant where JSON-LD is absent (Microsoft/Apple) | Stub here for now, add bespoke adapter in v0.2; for "just give me the jobs" → Adzuna |
+
+---
+
+## `webreel-pp-cli` — scripted browser demos as MP4
+
+**Binary:** `/Users/moraybrown/.local/bin/webreel-pp-cli` (symlink → `pp-tools/webreel-pp-cli/cli.mjs`).
+**Version:** 0.1.0 (wrapper) over **upstream webreel 0.1.4** (Apache-2.0, `npm install -g webreel`, `github.com/vercel-labs/webreel`).
+**What it does:** thin transparent wrapper around the upstream Vercel-Labs `webreel` CLI. JSON config defines steps (click / type / scroll / pause); headless Chrome executes them; ffmpeg encodes to MP4.
+
+**Why this exists:** consulting work needs repeatable demo videos — "here's the new workflow", "here's how to use this tool", "here's the walkthrough we promised the client." `webreel` ships exactly that primitive. The wrapper exists for Lab uniformity (audit/mirror hook target, consistent agent invocation surface alongside reddit/ats-surface/careers-sniffer/etc.).
+
+**No auth, no API keys.** First `record` or `preview` will download Chrome + ffmpeg into `~/.webreel` (~few hundred MB) — that's a one-time hit.
+
+### Subcommand reference
+
+| Subcommand | What it does |
+|---|---|
+| `init` | Scaffold `webreel.config.json` with `--name <video> --url <url>`. |
+| `record` | Record video(s) declared in config. Writes MP4 to `outDir` (default `./videos`). |
+| `validate` | Validate the config schema without running. |
+| `preview` | Open a visible browser and run the script without recording (debugging). |
+| `composite` | Re-composite from stored raw recordings/timelines without re-recording. |
+| `doctor` | Verify upstream `webreel` is installed and report version. |
+
+All subcommands except `doctor` are transparent passthroughs — full upstream flag surface available via `webreel <subcommand> --help`.
+
+### Common invocation patterns
+
+```bash
+# Scaffold a config for a 1-minute walkthrough of example.com
+mkdir my-demo && cd my-demo
+webreel-pp-cli init --name walkthrough --url https://example.com
+
+# Edit webreel.config.json — add steps: click "Get Started", type into search, etc.
+
+# Validate before running
+webreel-pp-cli validate
+
+# Record
+webreel-pp-cli record
+
+# Output:
+ls videos/   # walkthrough.mp4
+```
+
+### When to use this vs other tools
+
+- **Use webreel-pp-cli:** scripted/reproducible demo videos for client deliveries, training, onboarding walkthroughs, "here's how this works" content.
+- **Use Loom/ScreenStudio:** live screen recording with your face/voice.
+- **Use Playwright directly:** when you need browser automation but NOT video output.
+
+The two are complementary, not competitive — webreel is the deterministic video primitive when the demo must be repeatable and pixel-perfect (e.g., shipped in a deliverable).

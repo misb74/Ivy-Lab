@@ -162,5 +162,33 @@
       "discover",
       "doctor"
     ]
+  },
+  "webreel": {
+    "binary": "webreel-pp-cli",
+    "binary_absolute": "/Users/moraybrown/.local/bin/webreel-pp-cli",
+    "source_path": "pp-tools/webreel-pp-cli/cli.mjs",
+    "version": "0.1.0",
+    "kind": "wrapper-cli",
+    "legal_class": "public_oss",
+    "domain": "demo-recording",
+    "lab_only": false,
+    "upstream": {
+      "name": "webreel",
+      "version": "0.1.4",
+      "license": "Apache-2.0",
+      "repo": "github.com/vercel-labs/webreel",
+      "install": "npm install -g webreel"
+    },
+    "auth_required": [],
+    "agent_flag": "--agent",
+    "common_subcommands": [
+      "init",
+      "record",
+      "validate",
+      "preview",
+      "composite",
+      "doctor"
+    ],
+    "purpose": "Record scripted browser demos as MP4. JSON config (clicks/types/scrolls/pauses) → deterministic video. For client deliverable demos, training walkthroughs, repeatable tool explainers."
   }
 }
